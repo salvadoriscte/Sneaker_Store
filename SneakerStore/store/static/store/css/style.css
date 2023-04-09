@@ -1,0 +1,178 @@
+/* General styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+}
+
+
+header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1;
+  background-color: #111;
+  color: #fff;
+  padding: 20px;
+
+}
+
+nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+}
+
+nav li {
+  float: left;
+}
+
+nav li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+nav li a:hover {
+  background-color: #ddd;
+  color: black;
+}
+.login-btn {
+  margin-left: auto;
+}
+.logout-btn{
+  margin-left: auto;
+}
+/*main css*/
+main {
+  padding: 20px;
+}
+
+
+/* footer*/
+footer {
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+}
+
+
+/* popular sneakers*/
+.popular-sneakers {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin: 50px 0;
+  align-items: center;
+}
+
+.sneaker-card {
+  position: relative;
+  width: 23%;
+  margin-bottom: 50px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+  height: 500px;
+  overflow: hidden;
+  border: 2px solid black;
+  border-radius:10px;
+}
+
+.sneaker-card:hover {
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-5px);
+}
+
+.sneaker-card img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+
+}
+
+.sneaker-card h2 {
+  font-size: 1.5rem;
+  margin: 10px;
+}
+
+.sneaker-card p {
+  margin: 5px 10px;
+  font-size: 0.9rem;
+  color: #666;
+
+}
+
+.sneaker-card button {
+  position: absolute; /* add this */
+  bottom: 20px; /* adjust as needed */
+  left: 50%; /* center the button horizontally */
+  transform: translateX(-50%); /* center the button horizontally */
+  display: block;
+  padding: 10px 20px;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.sneaker-card button:hover {
+  background-color: #333;
+}
+
+@media (max-width: 1200px) {
+  .sneaker-card {
+    width: 30%;
+  }
+}
+
+@media (max-width: 900px) {
+  .sneaker-card {
+    width: 45%;
+  }
+}
+
+@media (max-width: 600px) {
+  .sneaker-card {
+    width: 100%;
+  }
+}
+
+/*Banner*/
+.banner {
+  position: relative;
+  height: 65vh;
+}
+
+.banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain-size;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+.banner h1 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  color: #fff;
+  text-shadow: 2px 2px #000;
+  z-index: 1;
+}

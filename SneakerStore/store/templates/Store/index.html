@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'store/css/style.css' %}">
+    <title>{% block title %}Sneaker Store{% endblock %}</title>
+</head>
+<body>
+<div class="banner">
+  <img src="{% static 'store/images/air_jordan_1_mid.jpg' %}" alt="Banner da Sneaker Store">
+  <h1>Sneaker Store</h1>
+</div>
+    <header>
+    <nav>
+        <ul>
+            <li><a href="#">Início</a></li>
+            <li><a href="#">Catálogo</a></li>
+            <li><a href="#">Sobre nós</a></li>
+            <li><a href="#">Contactos</a></li>
+            {% if user.is_authenticated %}
+                <li class="logout-btn"><a href="#">Logout</a></li>
+                <li><a href="{% url 'store:cart' %}"><i class="fa fa-shopping-cart"></i> Cart</a></li>
+            {% else %}
+                <li class="login-btn"><a href="#">Login</a></li>
+                <li class="register-btn"><a href="#">Register</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</header>
+
+    <main>
+
+
+{% block content %}
+<h1>Destaque</h1>
+<div class="popular-sneakers">
+  {% for sneaker in popular_sneakers %}
+  <div class="sneaker-card">
+      <img src="{% static sneaker.imagem %}" alt="{{ sneaker.nome }}">
+    <h2>{{ sneaker.nome }}</h2>
+    <p>Marca: {{ sneaker.marca.nome }}</p>
+    <p>Categoria: {{ sneaker.categoria.nome }}</p>
+    <p>Tamanho: {{ sneaker.tamanho.tamanho }}</p>
+    <p>Preço: {{ sneaker.preco }}€</p>
+    <form method="post" action="{% url 'store:add_to_cart' sneaker.id %}">
+      {% csrf_token %}
+      <button type="submit">Adicionar ao carrinho</button>
+    </form>
+  </div>
+  {% endfor %}
+</div>
+
+ <h2>Mais produtos</h2>
+    <div class="more-products">
+        {% for sneaker in more_sneakers %}
+        <div class="sneaker-card">
+            <img src="{% static sneaker.imagem %}" alt="{{ sneaker.nome }}">
+            <h2>{{ sneaker.nome }}</h2>
+            <p>Marca: {{ sneaker.marca.nome }}</p>
+            <p>Categoria: {{ sneaker.categoria.nome }}</p>
+            <p>Tamanho: {{ sneaker.tamanho.tamanho }}</p>
+            <p>Preço: {{ sneaker.preco }}€</p>
+            <form method="post" action="{% url 'store:add_to_cart' sneaker.id %}">
+                {% csrf_token %}
+                <button type="submit">Adicionar ao carrinho</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Sneaker Store</p>
+    </footer>
+</body>
+</html>

@@ -7,10 +7,10 @@ class Cliente(models.Model):
     telemovel = models.IntegerField()
     nif = models.IntegerField()
     imagem = models.ImageField(upload_to='clientes/')
-    estilo_preferido = models.ForeignKey('Estilo', on_delete=models.SET_NULL, null=True)
+    categoria_preferida = models.ForeignKey('Categoria', on_delete=models.SET_NULL, null=True)
     tamanho_preferido = models.ForeignKey('Tamanho', on_delete=models.SET_NULL, null=True)
 
-class PreferenciaMarca(models.Model):git push -u origin main
+class PreferenciaMarca(models.Model):
 
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     marca = models.ForeignKey('Marca', on_delete=models.CASCADE)
@@ -34,10 +34,10 @@ class Categoria(models.Model):
 class Sneaker(models.Model):
     nome = models.CharField(max_length=255)
     marca = models.ForeignKey(Marca, on_delete=models.CASCADE)
-    estilo = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    categoria = models.ForeignKey('Categoria', on_delete=models.SET_NULL, null=True)
     tamanho = models.ForeignKey(Tamanho, on_delete=models.CASCADE)
     preco = models.DecimalField(max_digits=10, decimal_places=2)
-    imagem = models.ImageField(upload_to='sneakers/')
+    imagem = models.ImageField(upload_to='store/images/')
     quantidade_stock = models.IntegerField()
 
 class Carrinho(models.Model):
