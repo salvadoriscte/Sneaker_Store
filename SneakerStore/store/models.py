@@ -6,14 +6,11 @@ class Cliente(models.Model):
     morada = models.CharField(max_length=255)
     telemovel = models.IntegerField()
     nif = models.IntegerField()
-    imagem = models.ImageField(upload_to='clientes/')
+    imagem = models.ImageField(upload_to='store/images/clientes/')
+    imagem = models.ImageField(upload_to='store/images/clientes/', null=True, blank=True, default='store/images/default_profile_pic.png')
     categoria_preferida = models.ForeignKey('Categoria', on_delete=models.SET_NULL, null=True)
     tamanho_preferido = models.ForeignKey('Tamanho', on_delete=models.SET_NULL, null=True)
-
-class PreferenciaMarca(models.Model):
-
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
-    marca = models.ForeignKey('Marca', on_delete=models.CASCADE)
+    marca_preferida = models.ForeignKey('Marca', on_delete=models.SET_NULL, null=True)
 
 class EmpregadoLoja(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

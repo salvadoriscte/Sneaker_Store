@@ -6,53 +6,62 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'store/css/style.css' %}">
     <title>{% block title %}Sneaker Store{% endblock %}</title>
+    {% block extra_head %} {% endblock %}
 </head>
 <body>
-<div class="banner">
-  <img src="{% static 'store/images/air_jordan_1_mid.jpg' %}" alt="Banner da Sneaker Store">
-  <h1>Sneaker Store</h1>
-</div>
-    <header>
+<header>
     <nav>
         <ul>
-            <li><a href="#">Início</a></li>
+            <li><a href="{% url 'store:index' %}">Início</a></li>
             <li><a href="#">Catálogo</a></li>
             <li><a href="#">Sobre nós</a></li>
             <li><a href="#">Contactos</a></li>
             {% if user.is_authenticated %}
+            <div class="profile-container">
+                 {% if user.is_authenticated and user.cliente.imagem %}
+               <img class="profile-picture" src="{{ user.cliente.imagem.url }}" alt="Foto de perfil de{{ user.first_name }}">
+            {% elif user.is_authenticated %}
+                <img class="profile-picture" src="{% static 'store/images/default_profile_pic.png' %}" alt="Foto de perfil de{{ user.first_name }}">
+            {% endif %}
+                <li><a href="{% url 'store:perfil' %}">Ver Perfil</a></li>
                 <li class="logout-btn"><a href="#">Logout</a></li>
-                <li><a href="{% url 'store:cart' %}"><i class="fa fa-shopping-cart"></i> Cart</a></li>
+            </div>
+            <li><a href="#"><i class="fa fa-shopping-cart"></i> Cart</a></li>
             {% else %}
-                <li class="login-btn"><a href="#">Login</a></li>
-                <li class="register-btn"><a href="#">Register</a></li>
+            <li class="login-btn"><a href="{% url 'store:login_view' %}">Login</a></li>
+            <li class="register-btn"><a href="{% url 'store:registar' %}">Registar</a></li>
             {% endif %}
         </ul>
     </nav>
 </header>
-
-    <main>
-
-
-{% block content %}
-<h1>Destaque</h1>
-<div class="popular-sneakers">
-  {% for sneaker in popular_sneakers %}
-  <div class="sneaker-card">
-      <img src="{% static sneaker.imagem %}" alt="{{ sneaker.nome }}">
-    <h2>{{ sneaker.nome }}</h2>
-    <p>Marca: {{ sneaker.marca.nome }}</p>
-    <p>Categoria: {{ sneaker.categoria.nome }}</p>
-    <p>Tamanho: {{ sneaker.tamanho.tamanho }}</p>
-    <p>Preço: {{ sneaker.preco }}€</p>
-    <form method="post" action="{% url 'store:add_to_cart' sneaker.id %}">
-      {% csrf_token %}
-      <button type="submit">Adicionar ao carrinho</button>
-    </form>
-  </div>
-  {% endfor %}
+{% block banner %}
+<div class="banner">
+    <img src="{% static 'store/images/air_jordan_1_mid.jpg' %}" alt="Banner da Sneaker Store">
+    <h1>Sneaker Store</h1>
+    <a href="{% url 'store:index' %}" class="btn">Ver Catálogo</a>
 </div>
+{% endblock %}
+<main>
+    {% block content %}
+    <h1>Destaques</h1>
+    <div class="popular-sneakers">
+        {% for sneaker in popular_sneakers %}
+        <div class="sneaker-card">
+            <img src="{% static sneaker.imagem %}" alt="{{ sneaker.nome }}">
+            <h2>{{ sneaker.nome }}</h2>
+            <p>Marca: {{ sneaker.marca.nome }}</p>
+            <p>Categoria: {{ sneaker.categoria.nome }}</p>
+            <p>Tamanho: {{ sneaker.tamanho.tamanho }}</p>
+            <p>Preço: {{ sneaker.preco }}€</p>
+            <form method="post" action="{% url 'store:add_to_cart' sneaker.id %}">
+                {% csrf_token %}
+                <button type="submit">Adicionar ao carrinho</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
 
- <h2>Mais produtos</h2>
+    <h2>Mais produtos</h2>
     <div class="more-products">
         {% for sneaker in more_sneakers %}
         <div class="sneaker-card">
@@ -70,11 +79,11 @@
         {% endfor %}
     </div>
 
-{% endblock %}
-    </main>
+    {% endblock %}
+</main>
 
-    <footer>
-        <p>&copy; 2023 Sneaker Store</p>
-    </footer>
+<footer>
+    <p> LEI-PL-3 &copy; 2023 Sneaker Store</p>
+</footer>
 </body>
 </html>

@@ -4,7 +4,7 @@ from django.urls import path
 from . import views
 app_name = "store"
 
-urlpatterns = [path('', views.index, name='index'),path('add_to_cart/<int:sneaker_id>/', views.add_to_cart, name='add_to_cart'),] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns = [path('', views.index, name='index'),path('registar', views.registar, name='registar'),path('login', views.login_view, name='login_view') ,path('perfil', views.perfil, name='perfil'),path('add_to_cart/<int:sneaker_id>/', views.add_to_cart, name='add_to_cart'),] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 
 
