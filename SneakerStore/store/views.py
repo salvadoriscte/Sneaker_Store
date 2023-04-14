@@ -24,6 +24,26 @@ def index(request):
     return render(request, 'store/index.html', context)
 
 
+def catalogo(request):
+    # Get all sneakers
+    sneakers = Sneaker.objects.all()
+
+    # Get all brands, sizes, and categories
+    marcas = Marca.objects.all()
+    tamanhos = Tamanho.objects.all()
+    categorias = Categoria.objects.all()
+
+    context = {
+        'sneakers': sneakers,
+        'marcas': marcas,
+        'tamanhos': tamanhos,
+        'categorias': categorias,
+    }
+
+    return render(request, 'store/catalogo.html', context)
+
+
+
 def registar(request):
     if request.method == 'POST':
         # get form data

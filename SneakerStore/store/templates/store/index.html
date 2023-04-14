@@ -13,7 +13,7 @@
     <nav>
         <ul>
             <li><a href="{% url 'store:index' %}">Início</a></li>
-            <li><a href="#">Catálogo</a></li>
+            <li><a href="{% url 'store:catalogo' %}">Catálogo</a></li>
             <li><a href="#">Sobre nós</a></li>
             <li><a href="#">Contactos</a></li>
             {% if user.is_authenticated %}

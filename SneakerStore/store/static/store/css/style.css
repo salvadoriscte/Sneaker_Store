@@ -264,3 +264,35 @@ footer {
   background-color: #0056b3;
   border-color: #0056b3;
 }
+
+/* Estilos para o formulário de filtro */
+#filter-form {
+  margin-top: 50px;
+}
+
+#filter-form label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+#filter-form input[type="radio"] {
+  margin-right: 5px;
+}
+
+/* Estilos para os resultados da pesquisa */
+
+#price-results {
+  margin-top: 20px;
+  list-style: none;
+  padding-left: 0;
+
+}
+
+#price-results li {
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+#price-results li:hover {
+  color: #007bff;
+}
