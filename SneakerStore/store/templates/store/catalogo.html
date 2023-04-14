@@ -6,5 +6,88 @@
 </head>
 <body>
 
+<header>
+    <nav>
+        <ul>
+            <li><a href="{% url 'store:index' %}">Início</a></li>
+            <li><a href="#">Catálogo</a></li>
+            <li><a href="#">Sobre nós</a></li>
+            <li><a href="#">Contactos</a></li>
+            {% if user.is_authenticated %}
+            <div class="profile-container">
+                 {% if user.is_authenticated and user.cliente.imagem %}
+               <img class="profile-picture" src="{{ user.cliente.imagem.url }}" alt="Foto de perfil de{{ user.first_name }}">
+            {% elif user.is_authenticated %}
+                <img class="profile-picture" src="{% static 'store/images/default_profile_pic.png' %}" alt="Foto de perfil de{{ user.first_name }}">
+            {% endif %}
+                <li><a href="{% url 'store:perfil' %}">Ver Perfil</a></li>
+                <li class="logout-btn"><a href="#">Logout</a></li>
+            </div>
+            <li><a href="#"><i class="fa fa-shopping-cart"></i> Cart</a></li>
+            {% else %}
+            <li class="login-btn"><a href="{% url 'store:login_view' %}">Login</a></li>
+            <li class="register-btn"><a href="{% url 'store:registar' %}">Registar</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</header>
+
+
+<div class="container-fluid">
+  <div class="row" id="fs_app">
+    <section class="col-12" id="fs_header_bar">
+      <div class="row">
+        <div class="col-2">
+          <i class="fa fa-chevron-left"></i>
+        </div>
+        <div class="col-10" id="fs_page_title">
+          Filters
+        </div>
+      </div>
+    </section>
+
+    <section class="col-12" id="fs_price_body">
+      <form id="filter-form">
+        <span class="heading">
+          By Price
+        </span>
+        <div class="row">
+          <div class="col-4">
+            <label>
+              <input type="radio" name="price" value="low" />
+              Low
+            </label>
+          </div>
+          <div class="col-4">
+            <label>
+              <input type="radio" name="price" value="medium" />
+              Medium
+            </label>
+          </div>
+          <div class="col-4">
+            <label>
+              <input type="radio" name="price" value="high" />
+              High
+            </label>
+          </div>
+        </div>
+      </form>
+      <div class="line"></div>
+      <div class="line1"></div>
+      <div>
+        <ul id="price-results">
+            {% for price in prices %}
+            <li>{{ price }}</li>
+            {% endfor %}
+        </ul>
+      </div>
+    </section>
+
+    <!-- Adicione aqui as outras seções do filtro -->
+
+  </div>
+</div>
+
+
 </body>
 </html>
