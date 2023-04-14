@@ -1,7 +1,7 @@
 // Get all the filter sections
 const priceSection = document.getElementById('fs_price_body');
-const distanceSection = document.getElementById('fs_distance_body');
-const timeSection = document.getElementById('fs_time_body');
+const marcaSection = document.getElementById('fs_distance_body');
+const categoriaSection = document.getElementById('fs_time_body');
 const ratingSection = document.getElementById('fs_rating');
 
 // Get all the filter buttons

@@ -1,14 +1,16 @@
 {% extends './index.html' %}
 {% block banner %}
 {% endblock %}
+{% load static %}
 
 {% block title %}Catalogo{% endblock %}
 
 <main>
     {% block content %}
 
+
 <div class="container-fluid">
-  <div class="row" id="fs_app">
+  <div class="row_left" id="fs_app">
     <section class="col-12" id="fs_header_bar">
       <div class="row">
         <div class="col-2">
@@ -58,10 +60,68 @@
     </section>
 
     <!-- Adicione aqui as outras seções do filtro -->
+<section class="col-12" id="fs_marca_body">
+      <form id="filter-form1">
+        <span class="heading">
+          Marca
+        </span>
+        <div class="row">
+          <div class="col-4">
+            <select name="marcas" id="marcas">
+    <option value="nike">Nike</option>
+  <option value="adidas">Adidas</option>
+  <option value="under_armour">Under Armor</option>
+  <option value="jordan">Jordan</option>
+        </select>
+      <div class="line"></div>
+      <div class="line1"></div>
+      <div>
+        <ul id="price-results">
+            {% for price in prices %}
+            <li>{{ price }}</li>
+            {% endfor %}
+        </ul>
+      </div>
+          </div>
+    </div>
+      </form>
+    </section>
 
-  </div>
-</div>
+     </div>
+    </div>
 
-      {% endblock %}
+
+
+      <main>
+    {% block content1 %}
+
+    <div class="todos_sneakers">
+
+        {% for sneaker in sneakers %}
+        <div class="sneaker-card">
+            <img src="{% static sneaker.imagem %}" alt="{{ sneaker.nome }}">
+            <h2>{{ sneaker.nome }}</h2>
+            <p>Marca: {{ sneaker.marca.nome }}</p>
+            <p>Categoria: {{ sneaker.categoria.nome }}</p>
+            <p>Tamanho: {{ sneaker.tamanho.tamanho }}</p>
+            <p>Preço: {{ sneaker.preco }}€</p>
+            <form method="post" action="{% url 'store:add_to_cart' sneaker.id %}">
+                {% csrf_token %}
+                <button type="submit">Adicionar ao carrinho</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>  </main>
+           {% endblock %}
+
+
+
+
+
+
+
+
+
+
 </main>
-
+  {% endblock %}

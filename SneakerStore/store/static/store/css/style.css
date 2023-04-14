@@ -265,14 +265,42 @@ footer {
   border-color: #0056b3;
 }
 
+/* Estilos para a pagina de catalogo */
+.container-fluid {
+display: flex;
+}
+
+.row_left {
+width:15%;
+float: left;
+
+}
+
+.todos_sneakers {
+    width:85%;
+    float: right;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+
+}
+
 /* Estilos para o formulário de filtro */
 #filter-form {
   margin-top: 50px;
+
+}
+#filter-form1 {
+  margin-top: 30px;
+
 }
 
 #filter-form label {
   display: block;
+  margin-top:10px;
   margin-bottom: 10px;
+  border-radius:10px;
 }
 
 #filter-form input[type="radio"] {
