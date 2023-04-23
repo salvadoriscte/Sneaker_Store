@@ -42,6 +42,9 @@ def catalogo(request):
 
     return render(request, 'store/catalogo.html', context)
 
+def aboutus(request):
+    return render(request, 'store/aboutus.html')
+
 
 
 def registar(request):

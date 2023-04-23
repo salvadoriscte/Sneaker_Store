@@ -268,21 +268,22 @@ footer {
 /* Estilos para a pagina de catalogo */
 .container-fluid {
 display: flex;
+ align-items: flex-start;
 }
 
 .row_left {
-width:15%;
+width:10%;
 float: left;
 
 }
 
 .todos_sneakers {
-    width:85%;
-    float: right;
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  align-items: center;
+margin-top:10px;
+width:85%;
+float: right;
+justify-content: space-between;
+display: flex;
+flex-wrap: wrap;
 
 }
 
@@ -323,4 +324,12 @@ float: left;
 
 #price-results li:hover {
   color: #007bff;
+}
+
+/*Pagina About us*/
+
+.container_aboutus {
+margin-top:100px;
+
+
 }
