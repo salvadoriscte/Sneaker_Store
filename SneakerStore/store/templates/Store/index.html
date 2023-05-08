@@ -5,76 +5,142 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
     <link rel="stylesheet" href="{% static 'store/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'store/js/popup-messages.js' %}"></script>
+    <script src="{% static 'store/js/quantity.js' %}"></script>
     <title>{% block title %}Sneaker Store{% endblock %}</title>
-    {% block extra_head %} {% endblock %}
 </head>
 <body>
+{% if messages %}
+<div id="django-messages" style="display:none;">
+    {% for message in messages %}
+    <div data-content="{{ message }}" data-type="{{ message.tags }}"></div>
+    {% endfor %}
+</div>
+{% endif %}
 <header>
+
     <nav>
         <ul>
             <li><a href="{% url 'store:index' %}">Início</a></li>
-            <li><a href="#">Catálogo</a></li>
-            <li><a href="#">Sobre nós</a></li>
-            <li><a href="#">Contactos</a></li>
+            <li><a href="{% url 'store:catalogo' %}">Catálogo</a></li>
+            <li><a href="{% url 'store:sobre_nos' %}">Sobre nós</a></li>
             {% if user.is_authenticated %}
             <div class="profile-container">
-                 {% if user.is_authenticated and user.cliente.imagem %}
-               <img class="profile-picture" src="{{ user.cliente.imagem.url }}" alt="Foto de perfil de{{ user.first_name }}">
-            {% elif user.is_authenticated %}
-                <img class="profile-picture" src="{% static 'store/images/default_profile_pic.png' %}" alt="Foto de perfil de{{ user.first_name }}">
-            {% endif %}
+                {% if user.cliente.imagem %}
+                <img class="profile-picture" src="{% static user.cliente.imagem %}"
+                     alt="Foto de perfil de{{ user.first_name }}">
+                {% else %}
+                <div class="welcome-text">
+                    Bem-vindo,<br> {{ user.first_name.split.0 }}
+                </div>
+                <img class="profile-picture" src="{% static 'store/images/default_profile_pic.png' %}"
+                     alt="Foto de perfil de{{ user.first_name }}">
+                {% endif %}
                 <li><a href="{% url 'store:perfil' %}">Ver Perfil</a></li>
-                <li class="logout-btn"><a href="#">Logout</a></li>
+                <li><a href="{% url 'store:encomendas' %}">Encomendas</a></li>
+
+                <li class="logout-btn"><a href="{% url 'store:logout' %}">Logout</a></li>
             </div>
-            <li><a href="#"><i class="fa fa-shopping-cart"></i> Cart</a></li>
             {% else %}
             <li class="login-btn"><a href="{% url 'store:login_view' %}">Login</a></li>
             <li class="register-btn"><a href="{% url 'store:registar' %}">Registar</a></li>
             {% endif %}
+            <li><a href="{% url 'store:carrinho' %}"><i class="fas fa-shopping-cart"></i></a></li>
+            <li><a href="#"><i class="fa fa-heart"></i></a></li>
         </ul>
     </nav>
 </header>
 {% block banner %}
 <div class="banner">
-    <img src="{% static 'store/images/air_jordan_1_mid.jpg' %}" alt="Banner da Sneaker Store">
+    <img src="{% static 'store/images/banner3.jpg' %}" alt="Banner da Sneaker Store">
     <h1>Sneaker Store</h1>
-    <a href="{% url 'store:index' %}" class="btn">Ver Catálogo</a>
+    {% block catalog_button %}
+    <a href="{% url 'store:catalogo' %}" class="btn">Ver Catálogo</a>
+    {% endblock %}
 </div>
 {% endblock %}
 <main>
     {% block content %}
     <h1>Destaques</h1>
-    <div class="popular-sneakers">
+    <div class="sneakers-cont">
         {% for sneaker in popular_sneakers %}
         <div class="sneaker-card">
-            <img src="{% static sneaker.imagem %}" alt="{{ sneaker.nome }}">
-            <h2>{{ sneaker.nome }}</h2>
-            <p>Marca: {{ sneaker.marca.nome }}</p>
-            <p>Categoria: {{ sneaker.categoria.nome }}</p>
-            <p>Tamanho: {{ sneaker.tamanho.tamanho }}</p>
-            <p>Preço: {{ sneaker.preco }}€</p>
-            <form method="post" action="{% url 'store:add_to_cart' sneaker.id %}">
-                {% csrf_token %}
-                <button type="submit">Adicionar ao carrinho</button>
-            </form>
+            <a href="{% url 'store:detalhes' sneaker.id %}">
+                <img src="{% static sneaker.imagem %}" alt="{{ sneaker.nome }}">
+                <h2>{{ sneaker.nome }}</h2>
+                <p>Marca: {{ sneaker.marca.nome }}</p>
+                <p>Categoria: {{ sneaker.categoria.nome }}</p>
+                <p>Tamanho: {{ sneaker.tamanho.tamanho }}</p>
+                <p>Preço: {{ sneaker.preco }}€</p>
+            </a>
+            <div class="card-actions">
+                {% if user.is_authenticated and request.user.empregadoloja %}
+                <a href="{% url 'store:editar_sneaker' sneaker.id %}" class="btn-admin btn-edit">Editar</a>
+                <a href="{% url 'store:remover_sneaker' sneaker.id %}" class="btn-admin btn-remove">Remover</a>
+                {% else %}
+                <div class="quantity-container">
+                    <button class="quantity-button" type="button"
+                            onclick="diminuirQuantidade(event, '{{ sneaker.id }}')">-
+                    </button>
+                    <span class="qnt-nbr" id="quantidade-{{ sneaker.id }}">1</span>
+                    <button class="quantity-button" type="button"
+                            onclick="aumentarQuantidade(event, '{{ sneaker.id }}')">+
+                    </button>
+                </div>
+                <div class="add-cart-container">
+                    <form method="post" action="{% url 'store:adicionar_carrinho' sneaker.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" id="quantidade-input-{{ sneaker.id }}" name="quantidade-{{ sneaker.id }}"
+                               value="1">
+                        <button class="add-cart" type="submit">Adicionar ao carrinho</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
         </div>
+
         {% endfor %}
     </div>
 
-    <h2>Mais produtos</h2>
-    <div class="more-products">
+    <h1>Mais produtos</h1>
+    <div class="sneakers-cont">
         {% for sneaker in more_sneakers %}
         <div class="sneaker-card">
-            <img src="{% static sneaker.imagem %}" alt="{{ sneaker.nome }}">
-            <h2>{{ sneaker.nome }}</h2>
-            <p>Marca: {{ sneaker.marca.nome }}</p>
-            <p>Categoria: {{ sneaker.categoria.nome }}</p>
-            <p>Tamanho: {{ sneaker.tamanho.tamanho }}</p>
-            <p>Preço: {{ sneaker.preco }}€</p>
-            <form method="post" action="{% url 'store:add_to_cart' sneaker.id %}">
-                {% csrf_token %}
-                <button type="submit">Adicionar ao carrinho</button>
-            </form>
+            <a href="{% url 'store:detalhes' sneaker.id %}">
+                <img src="{% static sneaker.imagem %}" alt="{{ sneaker.nome }}">
+                <h2>{{ sneaker.nome }}</h2>
+                <p>Marca: {{ sneaker.marca.nome }}</p>
+                <p>Categoria: {{ sneaker.categoria.nome }}</p>
+                <p>Tamanho: {{ sneaker.tamanho.tamanho }}</p>
+                <p>Preço: {{ sneaker.preco }}€</p>
+            </a>
+            <div class="card-actions">
+                {% if user.is_authenticated and request.user.empregadoloja %}
+                <a href="{% url 'store:editar_sneaker' sneaker.id %}" class="btn-admin btn-edit">Editar</a>
+                <a href="{% url 'store:remover_sneaker' sneaker.id %}" class="btn-admin btn-remove">Remover</a>
+                {% else %}
+                <div class="quantity-container">
+                    <button class="quantity-button" type="button"
+                            onclick="diminuirQuantidade(event, '{{ sneaker.id }}')">-
+                    </button>
+                    <span class="qnt-nbr" id="quantidade-{{ sneaker.id }}">1</span>
+                    <button class="quantity-button" type="button"
+                            onclick="aumentarQuantidade(event, '{{ sneaker.id }}')">+
+                    </button>
+                </div>
+                <div class="add-cart-container">
+                    <form method="post" action="{% url 'store:adicionar_carrinho' sneaker.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" id="quantidade-input-{{ sneaker.id }}" name="quantidade-{{ sneaker.id }}"
+                               value="1">
+                        <button class="add-cart" type="submit">Adicionar ao carrinho</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
         </div>
         {% endfor %}
     </div>

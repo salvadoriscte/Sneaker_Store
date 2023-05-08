@@ -1,5 +1,6 @@
 {% extends './index.html' %}
-
+{% block catalog_button %}{% endblock %}
+{% block title %}Registo{% endblock %}
 {% block content %}
 <div class="form-container">
   <h2>Registo</h2>
@@ -30,7 +31,7 @@
           <input class="form-input" type="text" name="nif" required>
       </div>
       <div class="form-group">
-          <label class="form-label" for="imagem">Imagem:</label>
+          <label class="form-label" for="imagem">Foto de Perfil:</label>
           <input class="form-input" type="file" name="imagem">
       </div>
       <div class="form-group">

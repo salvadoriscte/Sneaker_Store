@@ -3,29 +3,27 @@
 {% block title %}Perfil{% endblock %}
 {% block banner %}
 {% endblock %}
-{% block extra_head %}
-<link rel="stylesheet" href="{% static 'store/css/profile.css' %}">
-{% endblock %}
 {% block content %}
-<h1 class="header-margin">Bem-vindo, {{ user.first_name }}!</h1>
 <div class="profile-info">
     <h2>Perfil</h2>
     {% if user.cliente.imagem %}
-    <img src="{{ user.cliente.imagem.url }}" alt="Foto de perfil de{{ user.first_name }}"
+    <img src="{% static user.cliente.imagem %}" alt="Foto de perfil de{{ user.first_name }}"
          style="width: 200px; height: 200px;">
     {% else %}
     <img src="{% static 'store/images/default_profile_pic.png' %}" alt="Foto de perfil de{{ user.first_name }}"
          style="width: 200px; height: 200px;">
     {% endif %}
-    <p>Nome: {{ user.first_name }}</p>
-    <p>Morada: {{ user.cliente.morada }}</p>
-    <p>Email: {{ user.email }}</p>
-    <p>Telemóvel: {{ user.cliente.telemovel }}</p>
-    <p>NIF: {{ user.cliente.nif }}</p>
-    <p>Categoria preferida: {{ user.cliente.categoria_preferida.nome }}</p>
-    <p>Tamanho preferido: {{ user.cliente.tamanho_preferido.tamanho }}</p>
-    <p>Marca preferida: {{ user.cliente.marca_preferida.nome }}</p>
-    <a href="{% url 'store:index' %}" class="back-btn">Voltar</a>
-    <a href="#" class="edit-btn">Editar Perfil(Por Implementar)</a>
+    <p><strong>Nome:</strong> {{ user.first_name }}</p>
+    <p><strong>Morada:</strong> {{ user.cliente.morada }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Telemóvel:</strong> {{ user.cliente.telemovel }}</p>
+    <p><strong>NIF:</strong> {{ user.cliente.nif }}</p>
+    <p><strong>Categoria preferida:</strong> {{ user.cliente.categoria_preferida.nome }}</p>
+    <p><strong>Tamanho preferido:</strong> {{ user.cliente.tamanho_preferido.tamanho }}</p>
+    <p><strong>Marca preferida:</strong> {{ user.cliente.marca_preferida.nome }}</p>
+    <div class="button-container">
+        <a href="{% url 'store:editar_perfil' %}" class="edit-btn">Editar Perfil</a>
+        <a href="{% url 'store:index' %}" class="back-btn">Voltar</a>
+    </div>
 </div>
 {% endblock %}
