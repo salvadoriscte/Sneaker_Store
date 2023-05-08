@@ -1,0 +1,64 @@
+{% extends 'store/index.html' %}
+{% load static %}
+{% block title %}Editar Sneaker{% endblock %}
+{% block banner %}{% endblock %}
+{% block content %}
+<div class="editar-container">
+    <div class="container">
+        <h1 id="edt-snk">Editar Sneaker</h1>
+        <form method="post" class="form-edit-sneaker" action="{% url 'store:editar_sneaker' sneaker.id %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group-edt">
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" value="{{ sneaker.nome }}" required>
+            </div>
+            <div class="form-group-edt">
+                <label for="marca">Marca:</label>
+                <select id="marca" name="marca" required>
+                    {% for marca in marcas %}
+                    <option value="{{ marca.id }}" {% if marca == sneaker.marca %} selected {% endif %}> {{ marca.nome }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group-edt">
+                <label for="categoria">Categoria:</label>
+                <select id="categoria" name="categoria" required>
+                    {% for categoria in categorias %}
+                    <option value="{{ categoria.id }}" {% if categoria == sneaker.categoria %} selected {% endif %}> {{ categoria.nome }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group-edt">
+                <label for="tamanho">Tamanho:</label>
+                <select id="tamanho" name="tamanho" required>
+                    {% for tamanho in tamanhos %}
+                    <option value="{{ tamanho.id }}" {% if tamanho == sneaker.tamanho %} selected {% endif %}> {{ tamanho.tamanho }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group-edt">
+                <label for="preco">Preço:</label>
+                <input type="number" id="preco" name="preco" step="0.01" value="{{ sneaker.preco }}" required>
+            </div>
+
+            <div class="form-group-edt">
+                <label for="imagem">Imagem:</label>
+                <input type="file" id="imagem" name="imagem" accept="image/*">
+                <img src="{% static sneaker.imagem %}" alt="{{ sneaker.nome }}" class="preview-image">
+            </div>
+            <div class="form-group-edt">
+                <label for="quantidade_stock">Quantidade em Stock:</label>
+                <input type="number" id="quantidade_stock" name="quantidade_stock"
+                       value="{{ sneaker.quantidade_stock }}" required>
+            </div>
+            <button type="submit" id="save-edt">Guardar alterações</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+
+

@@ -1,0 +1,62 @@
+{% extends 'store/index.html' %}
+{% load static %}
+{% block title %}Carrinho - Sneaker Store{% endblock %}
+
+{% block content %}
+<div class="cart-container">
+    <h1>Carrinho de compras</h1>
+    {% if itens_carrinho|length > 0 %}
+    <table>
+        <tr>
+            <th>Produto</th>
+            <th>Preço</th>
+            <th>Tamanho</th>
+            <th>Quantidade</th>
+            <th>Total</th>
+            <th>Ação</th>
+        </tr>
+        {% for item in itens_carrinho %}
+        <tr>
+            <td>
+                <div class="product-info">
+                    <img src="{% static item.sneaker.imagem %}" alt="{{ item.sneaker.nome }}" class="product-image">
+                    <span class="product-name">{{ item.sneaker.nome }}</span>
+                </div>
+            </td>
+            <td data-price="{{ item.sneaker.preco }}">{{ item.sneaker.preco }}€</td>
+            <td> {{ item.sneaker.tamanho.tamanho }}</td>
+            <td>
+                <span class="cart-number">{{ item.quantidade|default:1 }}</span>
+            </td>
+            <td class="item-total" data-sneaker-id="{{ item.sneaker.id }}" data-cart-id="{{ item.id }}">
+                  <span>{{ item.total_item|floatformat:2 }}€</span>
+            </td>
+            <td>
+                <form method="post" action="{% url 'store:remove_from_cart' item.sneaker.id %}">
+                    {% csrf_token %}
+                    <button type="submit">Remover</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6">O seu carrinho está vazio.</td>
+        </tr>
+        {% endfor %}
+        <tr class="total-row">
+            <td colspan="4"></td>
+            <td><strong id="cart-total">{{ total_carrinho|floatformat:2 }}€</strong></td>
+            <td></td>
+        </tr>
+    </table>
+    <div class="checkout-container">
+        <form method="post" action="{% url 'store:finalizar_compra' %}">
+            {% csrf_token %}
+            <button type="submit" class="checkout-btn">Finalizar Compra</button>
+        </form>
+    </div>
+    {% else %}
+    <p>O seu carrinho está vazio.</p>
+    {% endif %}
+</div>
+{% endblock %}

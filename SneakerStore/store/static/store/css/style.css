@@ -699,8 +699,19 @@ footer {
     margin-top: 10px;
     font-weight: bold;
 }
+.cont-filters {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
 
-.filters {
+/*filtros*/
+.filters-catalogo {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
@@ -708,24 +719,24 @@ footer {
     margin-bottom: 2rem;
 }
 
-.filters label {
-    margin-right: 1rem;
+.filters-catalogo label {
+  margin-right: 1rem;
 }
 
-.filters select {
-    margin: 0.5rem;
+.filters-catalogo select {
+  margin-right: 1rem;
 }
 
-.filters button {
-    background-color: #3e8e41;
-    color: white;
-    padding: 0.5rem 1rem;
-    border: none;
-    cursor: pointer;
+.filters-catalogo button {
+  background-color: #3e8e41;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
 }
 
-.filters button:hover {
-    background-color: #2f6e31;
+.filters-catalogo button:hover {
+  background-color: #2f6e31;
 }
 
 .container_aboutus {
@@ -948,6 +959,15 @@ hr {
 
 
 /*Editar Sneaker*/
+#edt-snk {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+#edt-snk {
+  text-align: center;
+  margin-top: 2rem;
+}
 .editar-container {
   padding: 2rem 0;
 }
@@ -964,7 +984,7 @@ hr {
   margin-bottom: 2rem;
 }
 
-form {
+.form-edit-sneaker {
   display: flex;
   flex-direction: column;
   gap: 1rem;

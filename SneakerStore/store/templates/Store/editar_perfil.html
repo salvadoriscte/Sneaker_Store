@@ -1,0 +1,75 @@
+{% extends './index.html' %}
+{% load static %}
+{% block title %}Editar Perfil{% endblock %}
+{% block banner %}
+{% endblock %}
+{% block content %}
+<h1 class="header-margin">Editar Perfil</h1>
+<form action="{% url 'store:editar_perfil' %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="profile-info">
+        <h2>Perfil</h2>
+        {% if user.cliente.imagem %}
+        <img src="{% static user.cliente.imagem %}" alt="Foto de perfil de{{ user.first_name }}"
+             style="width: 200px; height: 200px;">
+        {% else %}
+        <img src="{% static 'store/images/default_profile_pic.png' %}" alt="Foto de perfil de{{ user.first_name }}"
+             style="width: 200px; height: 200px;">
+        {% endif %}
+        <div class="custom-form-group">
+            <label for="imagem">Imagem (opcional):</label>
+            <input type="file" name="imagem" id="imagem" accept="image/*" class="custom-input">
+        </div>
+        <div class="custom-form-group">
+            <label for="nome">Nome:</label>
+            <input type="text" name="nome" id="nome" value="{{ user.first_name }}" required class="custom-input">
+        </div>
+        <div class="custom-form-group">
+            <label for="morada">Morada:</label>
+            <input type="text" name="morada" id="morada" value="{{ user.cliente.morada }}" required
+                   class="custom-input">
+        </div>
+        <div class="custom-form-group">
+            <label for="email">Email:</label>
+            <input type="email" name="email" id="email" value="{{ user.email }}" required class="custom-input">
+        </div>
+        <div class="custom-form-group">
+            <label for="telemovel">Telemóvel:</label>
+            <input type="tel" name="telemovel" id="telemovel" value="{{ user.cliente.telemovel }}" required
+                   class="custom-input">
+        </div>
+        <div class="custom-form-group">
+            <label for="categoria_preferida">Categoria preferida:</label>
+            <select name="categoria_preferida" id="categoria_preferida" required class="custom-input">
+                {% for categoria in categorias %}
+                <option value="{{ categoria.id }}" {% if categoria.id == user.cliente.categoria_preferida.id %}selected{% endif %}>{{ categoria.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="custom-form-group">
+            <label for="tamanho_preferido">Tamanho preferido:</label>
+            <select name="tamanho_preferido" id="tamanho_preferido" required class="custom-input">
+                {% for tamanho in tamanhos %}
+                <option value="{{ tamanho.id }}" {% if tamanho.id == user.cliente.tamanho_preferido.id %}selected{% endif %}>{{ tamanho.tamanho }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="custom-form-group">
+            <label for="marca_preferida">Marca preferida:</label>
+            <select name="marca_preferida" id="marca_preferida" required class="custom-input">
+                {% for marca in marcas %}
+                <option value="{{ marca.id }}" {% if marca.id == user.cliente.marca_preferida.id %}selected{% endif %}>{{ marca.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="custom-form-group">
+            <label for="password">Nova Senha (opcional):</label>
+            <input type="password" name="password" id="password" class="custom-input">
+        </div>
+        <div class="button-container">
+            <button type="submit" class="custom-submit-btn">Salvar</button>
+            <a href="{% url 'store:perfil' %}" class="custom-cancel-btn">Cancelar</a>
+        </div>
+    </div>
+</form>
+{% endblock %}

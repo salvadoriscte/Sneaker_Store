@@ -20,8 +20,19 @@
     {% endfor %}
 </div>
 {% endif %}
+{% if request.user.empregadoloja %}
 <header>
-
+    <nav>
+        <ul>
+            <li><a href="#">Painel de Controlo</a></li>
+            <li><a href="#">Opção 1</a></li>
+            <!-- Adicione mais opções conforme necessário -->
+            <li class="logout-btn"><a href="{% url 'store:logout' %}">Logout</a></li>
+        </ul>
+    </nav>
+</header>
+{% else %}
+<header>
     <nav>
         <ul>
             <li><a href="{% url 'store:index' %}">Início</a></li>
@@ -62,6 +73,7 @@
     {% endblock %}
 </div>
 {% endblock %}
+{% endif %}
 <main>
     {% block content %}
     <h1>Destaques</h1>
@@ -77,10 +89,6 @@
                 <p>Preço: {{ sneaker.preco }}€</p>
             </a>
             <div class="card-actions">
-                {% if user.is_authenticated and request.user.empregadoloja %}
-                <a href="{% url 'store:editar_sneaker' sneaker.id %}" class="btn-admin btn-edit">Editar</a>
-                <a href="{% url 'store:remover_sneaker' sneaker.id %}" class="btn-admin btn-remove">Remover</a>
-                {% else %}
                 <div class="quantity-container">
                     <button class="quantity-button" type="button"
                             onclick="diminuirQuantidade(event, '{{ sneaker.id }}')">-
@@ -90,15 +98,14 @@
                             onclick="aumentarQuantidade(event, '{{ sneaker.id }}')">+
                     </button>
                 </div>
-                <div class="add-cart-container">
-                    <form method="post" action="{% url 'store:adicionar_carrinho' sneaker.id %}">
-                        {% csrf_token %}
-                        <input type="hidden" id="quantidade-input-{{ sneaker.id }}" name="quantidade-{{ sneaker.id }}"
-                               value="1">
-                        <button class="add-cart" type="submit">Adicionar ao carrinho</button>
-                    </form>
-                </div>
-                {% endif %}
+            </div>
+            <div class="add-cart-container">
+                <form method="post" action="{% url 'store:adicionar_carrinho' sneaker.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" id="quantidade-input-{{ sneaker.id }}" name="quantidade-{{ sneaker.id }}"
+                           value="1">
+                    <button class="add-cart" type="submit">Adicionar ao carrinho</button>
+                </form>
             </div>
         </div>
 
@@ -118,10 +125,6 @@
                 <p>Preço: {{ sneaker.preco }}€</p>
             </a>
             <div class="card-actions">
-                {% if user.is_authenticated and request.user.empregadoloja %}
-                <a href="{% url 'store:editar_sneaker' sneaker.id %}" class="btn-admin btn-edit">Editar</a>
-                <a href="{% url 'store:remover_sneaker' sneaker.id %}" class="btn-admin btn-remove">Remover</a>
-                {% else %}
                 <div class="quantity-container">
                     <button class="quantity-button" type="button"
                             onclick="diminuirQuantidade(event, '{{ sneaker.id }}')">-
@@ -131,15 +134,14 @@
                             onclick="aumentarQuantidade(event, '{{ sneaker.id }}')">+
                     </button>
                 </div>
-                <div class="add-cart-container">
-                    <form method="post" action="{% url 'store:adicionar_carrinho' sneaker.id %}">
-                        {% csrf_token %}
-                        <input type="hidden" id="quantidade-input-{{ sneaker.id }}" name="quantidade-{{ sneaker.id }}"
-                               value="1">
-                        <button class="add-cart" type="submit">Adicionar ao carrinho</button>
-                    </form>
-                </div>
-                {% endif %}
+            </div>
+            <div class="add-cart-container">
+                <form method="post" action="{% url 'store:adicionar_carrinho' sneaker.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" id="quantidade-input-{{ sneaker.id }}" name="quantidade-{{ sneaker.id }}"
+                           value="1">
+                    <button class="add-cart" type="submit">Adicionar ao carrinho</button>
+                </form>
             </div>
         </div>
         {% endfor %}

@@ -1,0 +1,37 @@
+{% extends 'store/index.html' %}
+{% load static %}
+{% block title %}Detalhes do Tênis{% endblock %}
+{% block banner %}{% endblock %}
+{% block content %}
+<div class="detalhes-container">
+    <div class="container">
+        <div class="tenis_detalhes">
+            <div class="imagem">
+                <img class="detalhe-imagem" src="{% static sneaker.imagem %}" alt="{{ sneaker.nome }}">
+            </div>
+            <div class="informacoes">
+                <h2>{{ sneaker.nome }}</h2>
+                <p>Marca: {{ sneaker.marca.nome }}</p>
+                <p>Categoria: {{ sneaker.categoria.nome }}</p>
+                <p>Tamanho: {{ sneaker.tamanho.tamanho }}</p>
+                <p>Preço: {{ sneaker.preco }}€</p>
+                <form method="post" action="{% url 'store:adicionar_carrinho' sneaker.id %}">
+                    {% csrf_token %}
+                    <div class="quantidade">
+                        <button class="quantity-button" type="button"
+                                onclick="diminuirQuantidade(event, '{{ sneaker.id }}')">-
+                        </button>
+                        <span class="qnt-nbr" id="quantidade-{{ sneaker.id }}">1</span>
+                        <button class="quantity-button" type="button"
+                                onclick="aumentarQuantidade(event, '{{ sneaker.id }}')">+
+                        </button>
+                        <input type="hidden" id="quantidade-input-{{ sneaker.id }}" name="quantidade-{{ sneaker.id }}"
+                               value="1">
+                    </div>
+                    <button type="submit">Adicionar ao carrinho</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

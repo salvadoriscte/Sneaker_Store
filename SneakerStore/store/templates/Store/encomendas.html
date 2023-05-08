@@ -1,0 +1,26 @@
+{% extends './index.html' %}
+
+{% block content %}
+    <h1 class="mb-4">Encomendas</h1>
+    <hr class="mb-4">
+    {% if encomendas %}
+        <ul class="enc-encomenda-lista">
+            {% for encomenda in encomendas %}
+                <li class="enc-encomenda-item">
+                    <h2 class="enc-encomenda-titulo">Encomenda {{ encomenda.id }}</h2>
+                    <p class="enc-encomenda-texto">Data: {{ encomenda.data }}</p>
+                    <p class="enc-encomenda-texto">Status: {{ encomenda.status }}</p>
+                    <p class="enc-encomenda-texto">Itens:</p>
+                    <ul class="enc-encomenda-lista">
+                        {% for item in encomenda.itemencomenda_set.all %}
+                            <li class="enc-encomenda-item-texto">{{ item.sneaker.nome }} - {{ item.quantidade }}x - <span class="enc-encomenda-item-preco">{{ item.sneaker.preco|floatformat:2 }}€</span></li>
+                        {% endfor %}
+                    </ul>
+                    <p class="enc-encomenda-texto">Total: {{ encomenda.total|floatformat:2 }}€</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="enc-encomenda-nenhuma">Nenhuma encomenda encontrada.</p>
+    {% endif %}
+{% endblock %}

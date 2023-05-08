@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Sneaker, Carrinho, ItemCarrinho, ItemEncomenda, Encomenda, Marca, Cliente, Tamanho, Categoria,EmpregadoLoja, Favoritos
+from .models import Sneaker, Carrinho, ItemCarrinho, ItemEncomenda, Encomenda, Marca, Cliente, Tamanho, Categoria, \
+    EmpregadoLoja, Favoritos
 from django.db.models import Count, Q, Sum, F
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -109,19 +110,22 @@ def registar(request):
         return render(request, 'store/registo.html', context)
 
 
-def login_view(request):  # não se pode chamar login pq da conflito!!!!!!!
+def login_view(request):
     if request.method == 'POST':
         email = request.POST['email']
         password = request.POST['password']
-        print(email, password)
         user = authenticate(request, username=email, password=password)
 
         if user is not None:
             login(request, user)
             messages.success(request, 'Login efetuado com sucesso!')
-            return redirect('store:index')
+
+            # Verifica se o utilizador é um empregado da loja
+            if user.empregadoloja:
+                return redirect('store:catalogo')
+            else:
+                return redirect('store:index')
         else:
-            print(user)
             messages.error(request, 'Email ou senha incorretos. Por favor, tente novamente.')
             return redirect('store:login_view')
     else:
@@ -379,8 +383,7 @@ def encomendas(request):
 # falta melhorar o sobre nos
 # ver a questao de como queres fazer o redirecionamento
 
-#tenho que ver como é que vou fazer o painel de controlo mas para já fazer os botões
-
+# tenho que ver como é que vou fazer o painel de controlo mas para já fazer os botões
 
 
 @login_required
@@ -432,6 +435,7 @@ def editar_sneaker(request, sneaker_id):
         tamanhos = Tamanho.objects.all()
         context = {'sneaker': sneaker, 'marcas': marcas, 'categorias': categorias, 'tamanhos': tamanhos}
         return render(request, 'store/editar_sneaker.html', context)
+
 
 @login_required
 @user_passes_test(check_empregado_loja, login_url=reverse_lazy('store:login_view'))
