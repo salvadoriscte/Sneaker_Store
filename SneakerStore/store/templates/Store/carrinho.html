@@ -32,7 +32,7 @@
                   <span>{{ item.total_item|floatformat:2 }}€</span>
             </td>
             <td>
-                <form method="post" action="{% url 'store:remove_from_cart' item.sneaker.id %}">
+                <form method="post" action="{% url 'store:remover_carrinho' item.sneaker.id %}">
                     {% csrf_token %}
                     <button type="submit">Remover</button>
                 </form>

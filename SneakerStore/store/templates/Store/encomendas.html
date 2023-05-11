@@ -1,26 +1,60 @@
 {% extends './index.html' %}
 
+{% block title %}Encomendas{% endblock %}
+{% block banner %}
+{% endblock %}
 {% block content %}
-    <h1 class="mb-4">Encomendas</h1>
-    <hr class="mb-4">
+<div class="enc-container">
+    <h1 class="enc-title">Encomendas</h1>
+    <hr class="enc-divider">
+    <form method="get" class="enc-search-form">
+        {% if request.user.is_authenticated and request.user.empregadoloja %}
+        <input type="text" name="search" placeholder="Procurar por número de encomenda, cliente ou status"
+               value="{{ request.GET.search }}" class="enc-search-input">
+        <input type="submit" value="Procurar" class="enc-search-submit">
+        {% else %}
+       <input type="text" name="search" placeholder="Procurar por número de encomenda ou status"
+               value="{{ request.GET.search }}" class="enc-search-input">
+        <input type="submit" value="Procurar" class="enc-search-submit">
+        {% endif %}
+    </form>
     {% if encomendas %}
-        <ul class="enc-encomenda-lista">
-            {% for encomenda in encomendas %}
-                <li class="enc-encomenda-item">
-                    <h2 class="enc-encomenda-titulo">Encomenda {{ encomenda.id }}</h2>
-                    <p class="enc-encomenda-texto">Data: {{ encomenda.data }}</p>
-                    <p class="enc-encomenda-texto">Status: {{ encomenda.status }}</p>
-                    <p class="enc-encomenda-texto">Itens:</p>
-                    <ul class="enc-encomenda-lista">
-                        {% for item in encomenda.itemencomenda_set.all %}
-                            <li class="enc-encomenda-item-texto">{{ item.sneaker.nome }} - {{ item.quantidade }}x - <span class="enc-encomenda-item-preco">{{ item.sneaker.preco|floatformat:2 }}€</span></li>
-                        {% endfor %}
-                    </ul>
-                    <p class="enc-encomenda-texto">Total: {{ encomenda.total|floatformat:2 }}€</p>
-                </li>
-            {% endfor %}
-        </ul>
+    <div class="enc-encomendas-list">
+        {% for encomenda in encomendas %}
+        <div class="enc-encomenda-item">
+            <h2 class="enc-encomenda-title">Encomenda {{ encomenda.id }}</h2>
+            <p class="enc-encomenda-text"><strong>Cliente:</strong> <span>{{ encomenda.cliente.user.username }}</span>
+            </p>
+            <p class="enc-encomenda-text"><strong>Data:</strong> <span>{{ encomenda.data }}</span></p>
+            <p class="enc-encomenda-text"><strong>Status:</strong>
+                <span class="{% if encomenda.get_status_display == 'Em Processamento' %}enc-processando {% elif encomenda.get_status_display == 'Cancelada' %}enc-cancelada{% elif encomenda.get_status_display == 'Entregue' %}enc-entregue{% endif %}">{{ encomenda.get_status_display }}</span>
+            </p>
+            {% if request.user.is_authenticated and request.user.empregadoloja %}
+            <form method="POST" action="{% url 'store:update_encomenda_status' encomenda.id %}">
+                {% csrf_token %}
+                <select name="status">
+                    {% for status, display in encomenda.STATUS_CHOICES %}
+                    <option value="{{ status }}" {% if encomenda.status == status %}selected{% endif %}>
+                        {{ display }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <input type="submit" value="Alterar status" class="enc-button">
+            </form>
+            {% endif %}
+            <p class="enc-encomenda-text"><strong>Itens:</strong></p>
+            <ul class="enc-encomenda-items">
+                {% for item in encomenda.itemencomenda_set.all %}
+                <li class="enc-encomenda-item-detail">{{ item.sneaker.nome }} - {{ item.quantidade }}x - <span
+                        class="enc-encomenda-item-price">{{ item.sneaker.preco|floatformat:2 }}€</span></li>
+                {% endfor %}
+            </ul>
+            <p class="enc-encomenda-text"><strong>Total:</strong> {{ encomenda.total|floatformat:2 }}€</p>
+        </div>
+        {% endfor %}
+    </div>
     {% else %}
-        <p class="enc-encomenda-nenhuma">Nenhuma encomenda encontrada.</p>
+    <p class="enc-encomenda-none">Nenhuma encomenda encontrada.</p>
     {% endif %}
+</div>
 {% endblock %}

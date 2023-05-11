@@ -1,3 +1,4 @@
+from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -7,14 +8,16 @@ from django.db.models import Count, Q, Sum, F
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse, reverse_lazy
-from datetime import datetime, timedelta
+from datetime import timedelta
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import user_passes_test
-from django.core.files.storage import FileSystemStorage
 import os
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
+from django.db.models.functions import Cast
+from django.db.models import CharField
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 def check_empregado_loja(user):
@@ -121,7 +124,7 @@ def login_view(request):
             messages.success(request, 'Login efetuado com sucesso!')
 
             # Verifica se o utilizador é um empregado da loja
-            if user.empregadoloja:
+            if check_empregado_loja(user):
                 return redirect('store:catalogo')
             else:
                 return redirect('store:index')
@@ -137,7 +140,7 @@ def perfil(request):
     return render(request, 'store/perfil.html')
 
 
-@login_required(login_url=reverse_lazy('store:login_view'))
+@user_passes_test(check_cliente, login_url=reverse_lazy('store:login_view'))
 def carrinho(request):
     carrinho = Carrinho.objects.filter(cliente=request.user.cliente, ativo=True).first()
     if not carrinho:
@@ -164,7 +167,7 @@ def carrinho(request):
     return render(request, 'store/carrinho.html', context)
 
 
-@login_required(login_url=reverse_lazy('store:login_view'))
+@user_passes_test(check_cliente, login_url=reverse_lazy('store:login_view'))
 def adicionar_carrinho(request, sneaker_id):
     if request.method == "POST":
         sneaker = get_object_or_404(Sneaker, pk=sneaker_id)
@@ -192,17 +195,79 @@ def adicionar_carrinho(request, sneaker_id):
             item = ItemCarrinho.objects.get(carrinho=carrinho, sneaker=sneaker)
             item.quantidade += quantidade
             item.save()
-            messages.info(request, f'{sneaker.nome} já está no carrinho! Quantidade atualizada.')
+            messages.info(request, f'O Sneaker {sneaker.nome} já está no carrinho! Quantidade atualizada.')
         except ItemCarrinho.DoesNotExist:
             # Se o item não estiver no carrinho, criar um novo item com quantidade 1
             item = ItemCarrinho.objects.create(carrinho=carrinho, sneaker=sneaker, quantidade=quantidade)
-            messages.success(request, f'{sneaker.nome} foi adicionado ao carrinho!')
+            messages.success(request, f'O Sneaker {sneaker.nome} foi adicionado ao carrinho!')
 
         # Setar o carrinho na sessão
         request.session['carrinho_id'] = carrinho.id
 
         # Redirecionar para a página do carrinho
         return redirect('store:carrinho')
+
+
+@login_required(login_url='store:login_view')
+def favoritos(request):
+    try:
+        # Get the favorite items for the logged in user
+        favoritos = Favoritos.objects.get(cliente=request.user.cliente)
+    except Favoritos.DoesNotExist:
+        # If the user has no favorite items, display an error message
+        messages.error(request, 'Parece que ainda não adicionou nenhum sneaker aos favoritos...')
+        return redirect('store:index')
+
+    # Otherwise, return the favorite items
+    context = {'favoritos': favoritos}
+    return render(request, 'store/favoritos.html', context)
+
+
+@user_passes_test(check_cliente, login_url=reverse_lazy('store:login_view'))
+def adicionar_favoritos(request, sneaker_id):
+    if request.method == "POST":
+        sneaker = get_object_or_404(Sneaker, pk=sneaker_id)
+        cliente = request.user.cliente
+
+        # Verificar se a lista de favoritos existe para o cliente logado
+        try:
+            favoritos = Favoritos.objects.get(cliente=cliente)
+        except Favoritos.DoesNotExist:
+            # Se a lista de favoritos não existir, criar uma nova lista de favoritos
+            favoritos = Favoritos.objects.create(cliente=cliente)
+
+        # Verificar se o item já está nos favoritos
+        if favoritos.sneaker.filter(id=sneaker.id).exists():
+            messages.info(request, f'O Sneaker {sneaker.nome} já está na sua lista de favoritos!')
+        else:
+            # Se o item não estiver nos favoritos, adicionar o item
+            favoritos.sneaker.add(sneaker)
+            favoritos.save()
+            messages.success(request, f'O Sneaker {sneaker.nome} foi adicionado aos seus favoritos!')
+
+        # Redirecionar para a página de favoritos
+        return redirect('store:favoritos')
+
+
+@user_passes_test(check_cliente, login_url='store:login_view')
+def remover_favoritos(request, sneaker_id):
+    if request.method == "POST":
+        sneaker = get_object_or_404(Sneaker, pk=sneaker_id)
+        cliente = request.user.cliente
+
+        try:
+            favoritos = Favoritos.objects.get(cliente=cliente)
+        except Favoritos.DoesNotExist:
+            messages.info(request, 'Não tem nenhum favorito para remover.')
+            return redirect('store:favoritos')
+
+        if favoritos.sneaker.filter(id=sneaker.id).exists():
+            favoritos.sneaker.remove(sneaker)
+            messages.success(request, f'O Sneaker {sneaker.nome} foi removido dos favoritos!')
+        else:
+            messages.info(request, f'O Sneaker {sneaker.nome} não está na sua lista de favoritos.')
+
+        return redirect('store:favoritos')
 
 
 @login_required
@@ -212,18 +277,25 @@ def logout_view(request):
     return redirect('store:index')
 
 
-@login_required(login_url=reverse_lazy('store:login_view'))
-def remove_from_cart(request, sneaker_id):
-    sneaker = get_object_or_404(Sneaker, id=sneaker_id)
+@user_passes_test(check_cliente, login_url=reverse_lazy('store:login_view'))
+def remover_carrinho(request, sneaker_id):
+    try:
+        sneaker = get_object_or_404(Sneaker, id=sneaker_id)
 
-    carrinho = Carrinho.objects.filter(cliente=request.user.cliente, ativo=True).first()
+        carrinho = Carrinho.objects.filter(cliente=request.user.cliente, ativo=True).first()
 
-    ItemCarrinho.objects.filter(carrinho=carrinho, sneaker=sneaker).delete()
+        ItemCarrinho.objects.filter(carrinho=carrinho, sneaker=sneaker).delete()
+
+        messages.success(request, f'O Sneaker {sneaker.nome} foi removido com sucesso do carrinho')
+    except ItemCarrinho.DoesNotExist:
+        messages.error(request, f'Houve um erro ao tentar remover o Sneaker {sneaker.nome} do carrinho')
+    except Exception as e:
+        messages.error(request, f'Ocorreu um erro inesperado: {str(e)}')
 
     return redirect(reverse('store:carrinho'))
 
 
-@login_required(login_url=reverse_lazy('store:login_view'))
+@user_passes_test(check_cliente, login_url=reverse_lazy('store:login_view'))
 def finalizar_compra(request):
     carrinho = Carrinho.objects.filter(cliente=request.user.cliente, ativo=True).first()
     if not carrinho:
@@ -233,7 +305,7 @@ def finalizar_compra(request):
     if carrinho.data_inatividade < data_atual:
         carrinho.ativo = False
         carrinho.save()
-        messages.error(request, 'O seu carrinho expirou. Por favor, adicione os produtos novamente.')
+        messages.error(request, 'O seu carrinho expirou. Por favor, adicione os sneakers novamente.')
         return redirect('store:index')
 
     itens_carrinho = carrinho.itemcarrinho_set.select_related('sneaker').all()
@@ -241,13 +313,13 @@ def finalizar_compra(request):
     try:
         # Criar a encomenda
         nova_encomenda = Encomenda.objects.create(cliente=request.user.cliente, data=timezone.now(),
-                                                  status='Em processamento')
+                                                  status='Em Processamento')
 
         # Atualizar o stock dos sneakers vendidos e criar os itens da encomenda
         for item in itens_carrinho:
             if item.quantidade > item.sneaker.quantidade_stock:
                 messages.error(request,
-                               f"O produto '{item.sneaker.nome}' não tem stock suficiente para a quantidade desejada.")
+                               f"O Sneaker '{item.sneaker.nome}' não existe em stock suficiente para a quantidade desejada.")
                 return redirect('store:carrinho')
             item.sneaker.quantidade_stock -= item.quantidade
             item.sneaker.save()
@@ -259,7 +331,7 @@ def finalizar_compra(request):
         carrinho.save()
 
     except Exception as e:
-        messages.error(request, 'Ocorreu um erro ao processar a sua compra. Por favor, tente novamente.')
+        messages.error(request, f'Ocorreu um erro ao processar a sua compra: {e}. Por favor, tente novamente.')
         return redirect('store:carrinho')
 
     messages.success(request, 'A sua compra foi finalizada com sucesso.')
@@ -293,6 +365,22 @@ def catalogo(request):
     categories = Categoria.objects.all()
     sizes = Tamanho.objects.all()
 
+    # Pagination
+    paginator = Paginator(sneakers, 16)  # Show 16 sneakers per page
+    page = request.GET.get('page')
+
+    try:
+        sneakers = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        sneakers = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        sneakers = paginator.page(paginator.num_pages)
+
+    if not sneakers:
+        messages.info(request, 'Não foram encontrados resultados para a sua pesquisa.')
+
     context = {
         'sneakers': sneakers,
         'brands': brands,
@@ -316,36 +404,52 @@ def detalhes(request, sneaker_id):
     return render(request, 'store/detalhes.html', {'sneaker': sneaker})
 
 
-@login_required
+@login_required(login_url='store:login_view')
 def editar_perfil(request):
     if request.method == 'POST':
         user = request.user
-        cliente = request.user.cliente
 
         # Get form data
         nome = request.POST['nome']
         morada = request.POST['morada']
         telemovel = request.POST['telemovel']
-        categoria_preferida = request.POST['categoria_preferida']
-        tamanho_preferido = request.POST['tamanho_preferido']
-        marca_preferida = request.POST['marca_preferida']
         imagem = request.FILES['imagem'] if 'imagem' in request.FILES else None
 
-        # Update user and cliente data
+        # Update user data
         user.first_name = nome
         user.save()
 
-        cliente.morada = morada
-        cliente.telemovel = telemovel
-        cliente.categoria_preferida_id = categoria_preferida
-        cliente.tamanho_preferido_id = tamanho_preferido
-        cliente.marca_preferida_id = marca_preferida
-        if imagem:
-            fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'clientes'))
-            filename = fs.save(imagem.name, imagem)
-            cliente.imagem = os.path.join('media/clientes', filename)
+        # Check user type and update data accordingly
+        if check_cliente(user):
+            cliente = Cliente.objects.get(user=user)
+            categoria_preferida = request.POST['categoria_preferida']
+            tamanho_preferido = request.POST['tamanho_preferido']
+            marca_preferida = request.POST['marca_preferida']
 
-        cliente.save()
+            cliente.morada = morada
+            cliente.telemovel = telemovel
+            cliente.categoria_preferida_id = categoria_preferida
+            cliente.tamanho_preferido_id = tamanho_preferido
+            cliente.marca_preferida_id = marca_preferida
+
+        elif check_empregado_loja(user):
+            empregadoloja = EmpregadoLoja.objects.get(user=user)
+
+            empregadoloja.morada = morada
+            empregadoloja.telemovel = telemovel
+
+        if imagem:
+            fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'utilizadores'))
+            filename = fs.save(imagem.name, imagem)
+            if check_cliente(user):
+                cliente.imagem = os.path.join('media/utilizadores', filename)
+            elif check_empregado_loja(user):
+                empregadoloja.imagem = os.path.join('media/utilizadores', filename)
+
+        if check_cliente(user):
+            cliente.save()
+        elif check_empregado_loja(user):
+            empregadoloja.save()
 
         messages.success(request, 'Perfil atualizado com sucesso!')
         return redirect('store:perfil')
@@ -365,47 +469,30 @@ def editar_perfil(request):
 
 @login_required(login_url='store:login_view')
 def encomendas(request):
-    encomendas = Encomenda.objects.filter(cliente=request.user.cliente).order_by('-data')
+    search_query = request.GET.get('search', '')
+    encomendas = Encomenda.objects.annotate(str_id=Cast('id', CharField())).order_by('-data')
+
+    if check_empregado_loja(request.user):
+        if search_query:
+            encomendas = encomendas.filter(Q(cliente__user__username__icontains=search_query) |
+                                           Q(status__icontains=search_query) |
+                                           Q(str_id__icontains=search_query))
+    elif check_cliente(request.user):
+        encomendas = encomendas.filter(cliente=request.user.cliente)
+        if search_query:
+            encomendas = encomendas.filter(Q(status__icontains=search_query) |
+                                           Q(str_id__icontains=search_query))
+
     for encomenda in encomendas:
         encomenda.total = 0
         for item in encomenda.itemencomenda_set.all():
             encomenda.total += item.sneaker.preco * item.quantidade
 
     context = {
-        'encomendas': encomendas
+        'encomendas': encomendas,
     }
 
     return render(request, 'store/encomendas.html', context)
-
-
-# admin
-# tenho que implementar esta funçoes e falta adicionar isto ao site
-# falta melhorar o sobre nos
-# ver a questao de como queres fazer o redirecionamento
-
-# tenho que ver como é que vou fazer o painel de controlo mas para já fazer os botões
-
-
-@login_required
-@user_passes_test(check_empregado_loja, login_url=reverse_lazy('store:login_view'))
-def painel_de_controlo(request):
-    if not request.user.is_authenticated or not request.user.is_admin:
-        return redirect('store:index')
-
-    orders = Order.objects.all()
-    sneakers = Sneaker.objects.all()
-    context = {'orders': orders, 'sneakers': sneakers}
-    return render(request, 'store/painel_de_controlo.html', context)
-
-
-def update_order_status(request, order_id):
-    # Implemente a lógica para atualizar o status do pedido aqui
-    pass
-
-
-def add_sneaker(request):
-    # Implemente a lógica para adicionar um novo tênis aqui
-    pass
 
 
 @login_required
@@ -427,7 +514,7 @@ def editar_sneaker(request, sneaker_id):
             sneaker.imagem = os.path.join('media/sneakers', filename)
 
         sneaker.save()
-        messages.success(request, 'Sneaker editado com sucesso!')
+        messages.success(request, f'O Sneaker {sneaker.nome} foi editado com sucesso!')
         return redirect('store:detalhes', sneaker_id=sneaker.id)
     else:
         marcas = Marca.objects.all()
@@ -443,8 +530,85 @@ def remover_sneaker(request, sneaker_id):
     sneaker = get_object_or_404(Sneaker, id=sneaker_id)
     if request.user.is_authenticated and check_empregado_loja(request.user):
         sneaker.delete()
-        messages.success(request, 'Sneaker removido com sucesso!')
-        return redirect('store:index')
+        messages.success(request, f'O Sneaker {sneaker.nome} foi removido com sucesso!')
+        return redirect('store:catalogo')
     else:
-        messages.error('Erro ao remover Sneaker!')
-        return redirect('store:index')
+        messages.error(f'Não foi possível remover o sneaker {sneaker.nome}')
+        return redirect('store:catalogo')
+
+
+@login_required
+@user_passes_test(check_empregado_loja, login_url=reverse_lazy('store:login_view'))
+def adicionar_sneaker(request):
+    marcas = Marca.objects.all()
+    categorias = Categoria.objects.all()
+    tamanhos = Tamanho.objects.all()
+
+    if request.method == 'GET':
+        return render(request, 'store/adicionar_sneaker.html',
+                      {'marcas': marcas, 'categorias': categorias, 'tamanhos': tamanhos})
+
+    elif request.method == 'POST':
+        nome = request.POST.get('nome', '')
+        marca_id = request.POST.get('marca', '')
+        categoria_id = request.POST.get('categoria', '')
+        tamanho_id = request.POST.get('tamanho', '')
+        preco = request.POST.get('preco', '')
+        imagem = request.FILES.get('imagem', None)
+        quantidade_stock = request.POST.get('stock', '')
+
+        if nome and marca_id and categoria_id and tamanho_id and preco and imagem and quantidade_stock:
+            try:
+                fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'sneakers'))
+                filename = fs.save(imagem.name, imagem)
+                imagem = os.path.join('media/sneakers', filename)
+                marca = Marca.objects.get(pk=marca_id)
+                categoria = Categoria.objects.get(pk=categoria_id)
+                tamanho = Tamanho.objects.get(pk=tamanho_id)
+
+                sneaker = Sneaker(nome=nome, marca=marca, categoria=categoria, tamanho=tamanho, preco=preco,
+                                  imagem=imagem, quantidade_stock=quantidade_stock)
+                sneaker.save()
+
+                messages.success(request, f'O Sneaker {sneaker.nome} foi adicionado com sucesso!')
+                return redirect('store:catalogo')
+
+            except Exception as e:
+                messages.error(request, f'Erro ao adicionar o sneaker {sneaker.nome}')
+        else:
+            messages.error(request, 'Todos os campos são obrigatórios.')
+
+        return render(request, 'store/adicionar_sneaker.html',
+                      {'marcas': marcas, 'categorias': categorias, 'tamanhos': tamanhos})
+
+
+@login_required(login_url='store:login_view')
+def update_encomenda_status(request, encomenda_id):
+    if not check_empregado_loja(request.user):
+        return HttpResponseForbidden()
+
+    encomenda = get_object_or_404(Encomenda, id=encomenda_id)
+
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+
+        if new_status in dict(Encomenda.STATUS_CHOICES):
+            encomenda.status = new_status
+            encomenda.save()
+
+    return redirect(reverse('store:encomendas'))
+
+
+@login_required(login_url='store:login_view')
+def recomendados(request):
+    if not check_cliente(request.user):
+        return HttpResponseForbidden()
+
+    cliente = Cliente.objects.get(user=request.user)
+    sneakers = Sneaker.objects.filter(
+        marca=cliente.marca_preferida,
+        categoria=cliente.categoria_preferida,
+        tamanho=cliente.tamanho_preferido
+    )
+
+    return render(request, 'store/recomendados.html', {'sneakers': sneakers})

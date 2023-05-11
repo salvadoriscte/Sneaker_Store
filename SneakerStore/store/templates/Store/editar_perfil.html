@@ -12,6 +12,9 @@
         {% if user.cliente.imagem %}
         <img src="{% static user.cliente.imagem %}" alt="Foto de perfil de{{ user.first_name }}"
              style="width: 200px; height: 200px;">
+        {% elif user.empregadoloja.imagem %}
+        <img src="{% static user.empregadoloja.imagem %}" alt="Foto de perfil de{{ user.first_name }}"
+             style="width: 200px; height: 200px;">
         {% else %}
         <img src="{% static 'store/images/default_profile_pic.png' %}" alt="Foto de perfil de{{ user.first_name }}"
              style="width: 200px; height: 200px;">
@@ -26,8 +29,13 @@
         </div>
         <div class="custom-form-group">
             <label for="morada">Morada:</label>
-            <input type="text" name="morada" id="morada" value="{{ user.cliente.morada }}" required
-                   class="custom-input">
+            {% if user.cliente %}
+            <input type="text" name="morada" id="morada" required class="custom-input"
+                   value="{{ user.cliente.morada }}">
+            {% elif user.empregadoloja %}
+            <input type="text" name="morada" id="morada" required class="custom-input"
+                   value="{{ user.empregadoloja.morada }}">
+            {% endif %}
         </div>
         <div class="custom-form-group">
             <label for="email">Email:</label>
@@ -35,14 +43,21 @@
         </div>
         <div class="custom-form-group">
             <label for="telemovel">Telemóvel:</label>
-            <input type="tel" name="telemovel" id="telemovel" value="{{ user.cliente.telemovel }}" required
-                   class="custom-input">
+            {% if user.cliente %}
+            <input type="tel" name="telemovel" id="telemovel" required class="custom-input"
+                   value="{{ user.cliente.telemovel }}">
+            {% elif user.empregadoloja %}
+            <input type="tel" name="telemovel" id="telemovel" required class="custom-input"
+                   value="{{ user.empregadoloja.telemovel }}">
+            {% endif %}
         </div>
+         {% if user.cliente %}
         <div class="custom-form-group">
             <label for="categoria_preferida">Categoria preferida:</label>
             <select name="categoria_preferida" id="categoria_preferida" required class="custom-input">
                 {% for categoria in categorias %}
-                <option value="{{ categoria.id }}" {% if categoria.id == user.cliente.categoria_preferida.id %}selected{% endif %}>{{ categoria.nome }}</option>
+                <option value="{{ categoria.id }}" {% if categoria.id == user.cliente.categoria_preferida.id %}selected{% endif %}> {{ categoria.nome }}
+                </option>
                 {% endfor %}
             </select>
         </div>
@@ -50,7 +65,8 @@
             <label for="tamanho_preferido">Tamanho preferido:</label>
             <select name="tamanho_preferido" id="tamanho_preferido" required class="custom-input">
                 {% for tamanho in tamanhos %}
-                <option value="{{ tamanho.id }}" {% if tamanho.id == user.cliente.tamanho_preferido.id %}selected{% endif %}>{{ tamanho.tamanho }}</option>
+                <option value="{{ tamanho.id }}" {% if tamanho.id == user.cliente.tamanho_preferido.id %} selected {% endif %}>{{ tamanho.tamanho }}
+                </option>
                 {% endfor %}
             </select>
         </div>
@@ -58,10 +74,12 @@
             <label for="marca_preferida">Marca preferida:</label>
             <select name="marca_preferida" id="marca_preferida" required class="custom-input">
                 {% for marca in marcas %}
-                <option value="{{ marca.id }}" {% if marca.id == user.cliente.marca_preferida.id %}selected{% endif %}>{{ marca.nome }}</option>
+                <option value="{{ marca.id }}" {% if marca.id == user.cliente.marca_preferida.id %} selected {% endif %}>{{ marca.nome }}
+                </option>
                 {% endfor %}
             </select>
         </div>
+           {% endif %}
         <div class="custom-form-group">
             <label for="password">Nova Senha (opcional):</label>
             <input type="password" name="password" id="password" class="custom-input">

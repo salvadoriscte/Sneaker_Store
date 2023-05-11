@@ -7,6 +7,9 @@
 
 body {
     font-family: 'Roboto', sans-serif;
+    display: flex;
+    flex-direction: column;
+     min-height: 100vh;
 }
 
 
@@ -150,19 +153,21 @@ footer {
     color: #fff;
     padding: 20px;
     text-align: center;
+    margin-top: auto;
 }
 
 
 /* popular sneakers*/
 .sneakers-cont {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     flex-wrap: wrap;
     margin: 50px 0;
     align-items: center;
 }
 
 .sneaker-card {
+    margin-left: 30px;
     position: relative;
     width: 23%;
     margin-bottom: 50px;
@@ -709,6 +714,67 @@ footer {
   margin: 0 auto;
   padding: 0 20px;
 }
+/*adicionar favorito*/
+.favorite-catalog{
+    position: relative;
+    font-size: 2.5em;
+    position: absolute;
+    outline: none;
+    background-color: transparent;
+    margin-left:28px;
+}
+.favorite {
+    position: relative;
+    font-size: 2.5em;
+    margin-left: 28px;
+    position: absolute;
+    bottom: 18px;
+    outline: none;
+    background-color: transparent;
+}
+.hover-icon {
+    color: black;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+}
+
+.favorite:hover .hover-icon {
+    opacity: 1;
+}
+
+.favorite:hover .far {
+    opacity: 0;
+}
+/*remover favorito*/
+.remove-favorite {
+    position: relative;
+    font-size: 2.5em;
+    margin-left: 28px;
+    position: absolute;
+    bottom: 18px;
+    outline: none;
+    background-color: transparent;
+}
+
+.remove-hover-icon {
+    color: black;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+}
+
+.remove-favorite:hover .remove-hover-icon {
+    opacity: 1;
+}
+
+.remove-favorite:hover .fas {
+    color:white;
+}
+
+
 
 /*filtros*/
 .filters-catalogo {
@@ -738,6 +804,31 @@ footer {
 .filters-catalogo button:hover {
   background-color: #2f6e31;
 }
+/*Página de navegação*/
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.pagination a {
+    color: black;
+    float: left;
+    padding: 8px 16px;
+    text-decoration: none;
+    transition: background-color .3s;
+}
+
+.pagination a.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.pagination a:hover:not(.active) {
+    background-color: #ddd;
+}
+
 
 .container_aboutus {
     display: flex;
@@ -877,60 +968,136 @@ p {
 button {
     margin-top: 20px;
 }
-
-/*encomendas*/
+    /*encomendas */
 /* Estilo para o título da página */
-h1 {
+.container h1 {
     font-size: 2.5rem;
     margin-bottom: 1rem;
 }
 
 /* Estilo para a linha horizontal */
-hr {
+.container hr {
     margin-top: 1rem;
     margin-bottom: 1rem;
     border: 0;
     border-top: 2px solid #ccc;
 }
 
-/* Estilo para o texto da encomenda */
-.enc-encomenda-texto {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
+/* Encomendas */
+/* Estilo para a linha horizontal */
+.enc-divider {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border: 0;
+    border-top: 2px solid #ccc;
 }
 
-/* Estilo para o título da encomenda */
-.enc-encomenda-titulo {
+/* Encomendas */
+.enc-container {
+    width: 80%;
+    margin: 0 auto;
+}
+
+.enc-title {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.enc-search-form {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.enc-search-input {
+    width: 60%;
+    padding: .5rem;
+    font-size: 1.2rem;
+}
+
+.enc-search-submit {
+    padding: .5rem 1rem;
+    font-size: 1.2rem;
+    margin-left: .5rem;
+    cursor: pointer;
+}
+
+.enc-encomendas-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.enc-encomenda-item {
+    width: 100%;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+.enc-encomenda-title {
     font-size: 1.5rem;
     margin-bottom: 0.5rem;
 }
 
-/* Estilo para a lista de encomendas */
-.enc-encomenda-lista {
-    list-style: none;
-    padding: 0;
-}
-
-/* Estilo para o item da lista de encomendas */
-.enc-encomenda-item {
-    margin-bottom: 1rem;
-}
-
-/* Estilo para o texto do item da lista de encomendas */
-.enc-encomenda-item-texto {
+.enc-encomenda-text {
     font-size: 1.2rem;
+    margin-bottom: 0.5rem;
 }
 
-/* Estilo para o preço do item da lista de encomendas */
-.enc-encomenda-item-preco {
+.enc-encomenda-items {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.enc-encomenda-item-detail {
+    font-size: 1.2rem;
+    margin-bottom: 0.3rem;
+}
+
+.enc-encomenda-item-price {
     font-weight: bold;
 }
 
-/* Estilo para o texto de nenhuma encomenda encontrada */
-.enc-encomenda-nenhuma {
+.enc-encomenda-none {
     font-size: 1.2rem;
     margin-top: 1rem;
+    text-align: center;
 }
+
+.enc-processando {
+    color: #FFA500;
+}
+
+.enc-cancelada {
+    color: #FF0000;
+}
+
+.enc-entregue {
+    color: #008000;
+}
+
+.enc-button {
+  background-color: #007bff;
+  border: none;
+  color: #fff;
+  padding: 8px 16px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.enc-button:hover {
+  background-color: #0062cc;
+  cursor: pointer;
+}
+
 
 /*popup*/
 .popup {

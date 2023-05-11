@@ -15,6 +15,7 @@
                 <p>Categoria: {{ sneaker.categoria.nome }}</p>
                 <p>Tamanho: {{ sneaker.tamanho.tamanho }}</p>
                 <p>Preço: {{ sneaker.preco }}€</p>
+                {% if request.user.cliente %}
                 <form method="post" action="{% url 'store:adicionar_carrinho' sneaker.id %}">
                     {% csrf_token %}
                     <div class="quantidade">
@@ -30,6 +31,10 @@
                     </div>
                     <button type="submit">Adicionar ao carrinho</button>
                 </form>
+                {% else %}
+                <a href="{% url 'store:editar_sneaker' sneaker.id %}" class="btn-admin btn-edit">Editar</a>
+                <a href="{% url 'store:remover_sneaker' sneaker.id %}" class="btn-admin btn-remove">Remover</a>
+                {% endif %}
             </div>
         </div>
     </div>

@@ -6,24 +6,43 @@
 {% block content %}
 <div class="profile-info">
     <h2>Perfil</h2>
-    {% if user.cliente.imagem %}
-    <img src="{% static user.cliente.imagem %}" alt="Foto de perfil de{{ user.first_name }}"
+    {% if request.user.cliente %}
+    {% if request.user.cliente.imagem %}
+    <img src="{% static request.user.cliente.imagem %}" alt="Foto de perfil de {{ request.user.first_name }}"
          style="width: 200px; height: 200px;">
     {% else %}
-    <img src="{% static 'store/images/default_profile_pic.png' %}" alt="Foto de perfil de{{ user.first_name }}"
+    <img src="{% static 'store/images/default_profile_pic.png' %}" alt="Foto de perfil de {{ request.user.first_name }}"
          style="width: 200px; height: 200px;">
     {% endif %}
-    <p><strong>Nome:</strong> {{ user.first_name }}</p>
-    <p><strong>Morada:</strong> {{ user.cliente.morada }}</p>
-    <p><strong>Email:</strong> {{ user.email }}</p>
-    <p><strong>Telemóvel:</strong> {{ user.cliente.telemovel }}</p>
-    <p><strong>NIF:</strong> {{ user.cliente.nif }}</p>
-    <p><strong>Categoria preferida:</strong> {{ user.cliente.categoria_preferida.nome }}</p>
-    <p><strong>Tamanho preferido:</strong> {{ user.cliente.tamanho_preferido.tamanho }}</p>
-    <p><strong>Marca preferida:</strong> {{ user.cliente.marca_preferida.nome }}</p>
+    <p><strong>Nome:</strong> {{ request.user.first_name }}</p>
+    <p><strong>Morada:</strong> {{ request.user.cliente.morada }}</p>
+    <p><strong>Email:</strong> {{ request.user.email }}</p>
+    <p><strong>Telemóvel:</strong> {{ request.user.cliente.telemovel }}</p>
+    <p><strong>NIF:</strong> {{ request.user.cliente.nif }}</p>
+    <p><strong>Categoria preferida:</strong> {{ request.user.cliente.categoria_preferida.nome }}</p>
+    <p><strong>Tamanho preferido:</strong> {{ request.user.cliente.tamanho_preferido.tamanho }}</p>
+    <p><strong>Marca preferida:</strong> {{ request.user.cliente.marca_preferida.nome }}</p>
+    {% else %}
+    {% if request.user.empregadoloja.imagem %}
+    <img src="{% static request.user.empregadoloja.imagem %}" alt="Foto de perfil de {{ request.user.first_name }}"
+         style="width: 200px; height: 200px;">
+    {% else %}
+    <img src="{% static 'store/images/default_profile_pic.png' %}" alt="Foto de perfil de {{ request.user.first_name }}"
+         style="width: 200px; height: 200px;">
+    {% endif %}
+    <p><strong>Nome:</strong> {{ request.user.first_name }}</p>
+    <p><strong>Morada:</strong> {{ request.user.empregadoloja.morada }}</p>
+    <p><strong>Email:</strong> {{ request.user.email }}</p>
+    <p><strong>Telemóvel:</strong> {{ request.user.empregadoloja.telemovel }}</p>
+    <p><strong>NIF:</strong> {{ request.user.empregadoloja.nif }}</p>
+    {% endif %}
     <div class="button-container">
         <a href="{% url 'store:editar_perfil' %}" class="edit-btn">Editar Perfil</a>
+        {% if request.user.empregadoloja %}
+        <a href="{% url 'store:catalogo' %}" class="back-btn">Voltar</a>
+        {% else %}
         <a href="{% url 'store:index' %}" class="back-btn">Voltar</a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

@@ -4,79 +4,97 @@
 {% endblock %}
 {% block content %}
 <div class="cont-filters">
-<div class="filters-catalogo">
-    <form method="get" action="">
-        <label for="brand">Marca:</label>
-        <select name="brand" id="brand">
-            <option value="">Selecione a marca</option>
-            {% for brand in brands %}
-            <option value="{{ brand.id }}" {% if brand.id == selected_brand %}selected{% endif %}>{{ brand.nome }}
-            </option>
-            {% endfor %}
-        </select>
-        <label for="category">Categoria:</label>
-        <select name="category" id="category">
-            <option value="">Selecione a categoria</option>
-            {% for category in categories %}
-            <option value="{{ category.id }}" {% if category.id == selected_category %}selected{% endif %}>{{ category.nome }}
-            </option>
-            {% endfor %}
-        </select>
+    <div class="filters-catalogo">
+        <form method="get" action="">
+            <label for="brand">Marca:</label>
+            <select name="brand" id="brand">
+                <option value="">Selecione a marca</option>
+                {% for brand in brands %}
+                <option value="{{ brand.id }}" {% if brand.id == selected_brand %} selected {% endif %}>{{ brand.nome }}
+                </option>
+                {% endfor %}
+            </select>
+            <label for="category">Categoria:</label>
+            <select name="category" id="category">
+                <option value="">Selecione a categoria</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}" {% if category == selected_category %} selected {% endif %}>{{ category.nome }} </option>
+                {% endfor %}
+            </select>
 
-        <label for="size">Tamanho:</label>
-        <select name="size" id="size">
-            <option value="">Selecione o tamanho</option>
-            {% for size in sizes %}
-            <option value="{{ size.id }}" {% if size.id == selected_size %}selected{% endif %}>{{ size.tamanho }}
-            </option>
-            {% endfor %}
-        </select>
+            <label for="size">Tamanho:</label>
+            <select name="size" id="size">
+                <option value="">Selecione o tamanho</option>
+                {% for size in sizes %}
+                <option value="{{ size.id }}" {% if size.id == selected_size %} selected {% endif %}>{{ size.tamanho }}
+                </option>
+                {% endfor %}
+            </select>
 
-        <label for="search">Pesquisar:</label>
-        <input type="text" name="search" id="search" placeholder="Digite o nome do produto">
+            <label for="search">Pesquisar:</label>
+            <input type="text" name="search" id="search" placeholder="Digite o nome do produto">
 
-        <button type="submit">Filtrar</button>
-    </form>
+            <button type="submit">Filtrar</button>
+        </form>
+    </div>
 </div>
-</div>
-
+{% if not request.user.empregadoloja %}
 <h1>Catálogo</h1>
+{% endif %}
 <div class="sneakers-cont">
     {% for sneaker in sneakers %}
-  <div class="sneaker-card">
-            <a href="{% url 'store:detalhes' sneaker.id %}">
-                <img src="{% static sneaker.imagem %}" alt="{{ sneaker.nome }}">
-                <h2>{{ sneaker.nome }}</h2>
-                <p>Marca: {{ sneaker.marca.nome }}</p>
-                <p>Categoria: {{ sneaker.categoria.nome }}</p>
-                <p>Tamanho: {{ sneaker.tamanho.tamanho }}</p>
-                <p>Preço: {{ sneaker.preco }}€</p>
-            </a>
-            <div class="card-actions">
-                {% if user.is_authenticated and request.user.empregadoloja %}
-                <a href="{% url 'store:editar_sneaker' sneaker.id %}" class="btn-admin btn-edit">Editar</a>
-                <a href="{% url 'store:remover_sneaker' sneaker.id %}" class="btn-admin btn-remove">Remover</a>
-                {% else %}
-                <div class="quantity-container">
-                    <button class="quantity-button" type="button"
-                            onclick="diminuirQuantidade(event, '{{ sneaker.id }}')">-
-                    </button>
-                    <span class="qnt-nbr" id="quantidade-{{ sneaker.id }}">1</span>
-                    <button class="quantity-button" type="button"
-                            onclick="aumentarQuantidade(event, '{{ sneaker.id }}')">+
-                    </button>
-                </div>
-                <div class="add-cart-container">
-                    <form method="post" action="{% url 'store:adicionar_carrinho' sneaker.id %}">
-                        {% csrf_token %}
-                        <input type="hidden" id="quantidade-input-{{ sneaker.id }}" name="quantidade-{{ sneaker.id }}"
-                               value="1">
-                        <button class="add-cart" type="submit">Adicionar ao carrinho</button>
-                    </form>
-                </div>
-                {% endif %}
-            </div>
+    <div class="sneaker-card">
+        <a href="{% url 'store:detalhes' sneaker.id %}">
+            <img src="{% static sneaker.imagem %}" alt="{{ sneaker.nome }}">
+            <h2>{{ sneaker.nome }}</h2>
+            <p>Marca: {{ sneaker.marca.nome }}</p>
+            <p>Categoria: {{ sneaker.categoria.nome }}</p>
+            <p>Tamanho: {{ sneaker.tamanho.tamanho }}</p>
+            <p>Preço: {{ sneaker.preco }}€</p>
+        </a>
+        <div class="card-actions">
+            {% if user.is_authenticated and request.user.empregadoloja %}
+            <a href="{% url 'store:editar_sneaker' sneaker.id %}" class="btn-admin btn-edit">Editar</a>
+            <a href="{% url 'store:remover_sneaker' sneaker.id %}" class="btn-admin btn-remove">Remover</a>
         </div>
-    {% endfor %}
+        {% else %}
+        <div class="quantity-container">
+            <button class="quantity-button" type="button"
+                    onclick="diminuirQuantidade(event, '{{ sneaker.id }}')">-
+            </button>
+            <span class="qnt-nbr" id="quantidade-{{ sneaker.id }}">1</span>
+            <button class="quantity-button" type="button"
+                    onclick="aumentarQuantidade(event, '{{ sneaker.id }}')">+
+            </button>
+        </div>
+    </div>
+    <div class="add-cart-container">
+        <form id="add-favorite-form-{{ sneaker.id }}" method="post"
+              action="{% url 'store:adicionar_favoritos' sneaker.id %}">
+            {% csrf_token %}
+            <a href="#" class="favorite" onclick="submitFavoriteForm('{{ sneaker.id }}');">
+                <i class="far fa-heart"></i>
+                <i class="fas fa-heart hover-icon"></i>
+            </a>
+        </form>
+        <form method="post" action="{% url 'store:adicionar_carrinho' sneaker.id %}">
+            {% csrf_token %}
+            <input type="hidden" id="quantidade-input-{{ sneaker.id }}" name="quantidade-{{ sneaker.id }}"
+                   value="1">
+            <button class="add-cart" type="submit">Adicionar ao carrinho</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endfor %}
+</div>
+<div class="pagination">
+    {% if sneakers.has_previous %}
+        <a href="?page={{ sneakers.previous_page_number }}">Página Anterior</a>
+    {% endif %}
+    <span class="current">Página {{ sneakers.number }} de {{ sneakers.paginator.num_pages }}</span>
+    {% if sneakers.has_next %}
+        <a href="?page={{ sneakers.next_page_number }}">Próxima Página</a>
+    {% endif %}
 </div>
 {% endblock %}

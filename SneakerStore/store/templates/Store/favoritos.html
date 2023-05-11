@@ -1,0 +1,53 @@
+{% extends 'store/index.html' %}
+{% load static %}
+{% block title %}Favoritos{% endblock %}
+{% block banner %}
+{% endblock %}
+
+{% block content %}
+<h1>Favoritos</h1>
+<div class="sneakers-cont">
+    {% for sneaker in favoritos.sneaker.all %}
+    <div class="sneaker-card">
+        <a href="{% url 'store:detalhes' sneaker.id %}">
+            <img src="{% static sneaker.imagem %}" alt="{{ sneaker.nome }}">
+            <h2>{{ sneaker.nome }}</h2>
+            <p>Marca: {{ sneaker.marca.nome }}</p>
+            <p>Categoria: {{ sneaker.categoria.nome }}</p>
+            <p>Tamanho: {{ sneaker.tamanho.tamanho }}</p>
+            <p>Preço: {{ sneaker.preco }}€</p>
+        </a>
+        <div class="card-actions">
+            <div class="quantity-container">
+                <button class="quantity-button" type="button"
+                        onclick="diminuirQuantidade(event, '{{ sneaker.id }}')">-
+                </button>
+                <span class="qnt-nbr" id="quantidade-{{ sneaker.id }}">1</span>
+                <button class="quantity-button" type="button"
+                        onclick="aumentarQuantidade(event, '{{ sneaker.id }}')">+
+                </button>
+            </div>
+        </div>
+        <div class="add-cart-container">
+            <form id="remove-favorite-form-{{ sneaker.id }}" method="post"
+                  action="{% url 'store:remover_favoritos' sneaker.id %}">
+                {% csrf_token %}
+                <a href="#" class="remove-favorite" onclick="submitRemoveFavoriteForm('{{ sneaker.id }}');">
+                    <i class="fas fa-heart"></i>
+                    <i class="far fa-heart remove-hover-icon"></i>
+                </a>
+            </form>
+
+            <form method="post" action="{% url 'store:adicionar_carrinho' sneaker.id %}">
+                {% csrf_token %}
+                <input type="hidden" id="quantidade-input-{{ sneaker.id }}" name="quantidade-{{ sneaker.id }}"
+                       value="1">
+                <button class="add-cart" type="submit">Adicionar ao carrinho</button>
+            </form>
+        </div>
+    </div>
+    {% empty %}
+    <p>Não existe nenhum sneaker nos favoritos.</p>
+    {% endfor %}
+</div>
+{% endblock %}

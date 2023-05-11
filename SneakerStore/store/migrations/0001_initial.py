@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
                 ('morada', models.CharField(max_length=255)),
                 ('telemovel', models.IntegerField()),
                 ('nif', models.IntegerField()),
-                ('imagem', models.ImageField(upload_to='clientes/')),
+                ('imagem', models.ImageField(upload_to='utilizadoresutilizadoresutilizadores/')),
                 ('categoria_preferida', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='store.categoria')),
             ],
         ),

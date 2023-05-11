@@ -10,6 +10,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{% static 'store/js/popup-messages.js' %}"></script>
     <script src="{% static 'store/js/quantity.js' %}"></script>
+    <script src="{% static 'store/js/favorite.js' %}"></script>
     <title>{% block title %}Sneaker Store{% endblock %}</title>
 </head>
 <body>
@@ -24,10 +25,23 @@
 <header>
     <nav>
         <ul>
-            <li><a href="#">Painel de Controlo</a></li>
-            <li><a href="#">Opção 1</a></li>
-            <!-- Adicione mais opções conforme necessário -->
-            <li class="logout-btn"><a href="{% url 'store:logout' %}">Logout</a></li>
+            <li><a href="{% url 'store:catalogo' %}">Início</a></li>
+            <li><a href="{% url 'store:adicionar_sneaker' %}">Adicionar Sneaker</a></li>
+            <li><a href="{% url 'store:encomendas' %}">Gerir encomendas</a></li>
+            <div class="profile-container">
+                <div class="welcome-text">
+                    Bem-vindo,<br> {{ request.user.first_name.split.0 }}
+                </div>
+                {% if request.user.empregado_loja.imagem %}
+                <img class="profile-picture" src="{% static request.user.cliente.imagem %}"
+                     alt="Foto de perfil de{{ request.user.first_name }}">
+                {% else %}
+                <img class="profile-picture" src="{% static 'store/images/default_profile_pic.png' %}"
+                     alt="Foto de perfil de{{ request.user.first_name }}">
+                {% endif %}
+                <li><a href="{% url 'store:perfil' %}">Ver Perfil</a></li>
+                <li class="logout-btn"><a href="{% url 'store:logout' %}">Logout</a></li>
+            </div>
         </ul>
     </nav>
 </header>
@@ -38,17 +52,18 @@
             <li><a href="{% url 'store:index' %}">Início</a></li>
             <li><a href="{% url 'store:catalogo' %}">Catálogo</a></li>
             <li><a href="{% url 'store:sobre_nos' %}">Sobre nós</a></li>
-            {% if user.is_authenticated %}
+            {% if request.user.cliente %}
+            <li><a href="{% url 'store:recomendados' %}">Recomendados Para Si</a></li>
             <div class="profile-container">
-                {% if user.cliente.imagem %}
-                <img class="profile-picture" src="{% static user.cliente.imagem %}"
-                     alt="Foto de perfil de{{ user.first_name }}">
-                {% else %}
                 <div class="welcome-text">
-                    Bem-vindo,<br> {{ user.first_name.split.0 }}
+                    Bem-vindo,<br> {{ request.user.first_name.split.0 }}
                 </div>
+                {% if request.user.cliente.imagem %}
+                <img class="profile-picture" src="{% static request.user.cliente.imagem %}"
+                     alt="Foto de perfil de{{ request.user.first_name }}">
+                {% else %}
                 <img class="profile-picture" src="{% static 'store/images/default_profile_pic.png' %}"
-                     alt="Foto de perfil de{{ user.first_name }}">
+                     alt="Foto de perfil de{{ request.user.first_name }}">
                 {% endif %}
                 <li><a href="{% url 'store:perfil' %}">Ver Perfil</a></li>
                 <li><a href="{% url 'store:encomendas' %}">Encomendas</a></li>
@@ -60,7 +75,7 @@
             <li class="register-btn"><a href="{% url 'store:registar' %}">Registar</a></li>
             {% endif %}
             <li><a href="{% url 'store:carrinho' %}"><i class="fas fa-shopping-cart"></i></a></li>
-            <li><a href="#"><i class="fa fa-heart"></i></a></li>
+            <li><a href="{% url 'store:favoritos' %}"><i class="fa fa-heart"></i></a></li>
         </ul>
     </nav>
 </header>
@@ -100,6 +115,14 @@
                 </div>
             </div>
             <div class="add-cart-container">
+                <form id="add-favorite-form-{{ sneaker.id }}" method="post"
+                      action="{% url 'store:adicionar_favoritos' sneaker.id %}">
+                    {% csrf_token %}
+                    <a href="#" class="favorite" onclick="submitFavoriteForm('{{ sneaker.id }}');">
+                        <i class="far fa-heart"></i>
+                        <i class="fas fa-heart hover-icon"></i>
+                    </a>
+                </form>
                 <form method="post" action="{% url 'store:adicionar_carrinho' sneaker.id %}">
                     {% csrf_token %}
                     <input type="hidden" id="quantidade-input-{{ sneaker.id }}" name="quantidade-{{ sneaker.id }}"
@@ -136,6 +159,14 @@
                 </div>
             </div>
             <div class="add-cart-container">
+                <form id="add-favorite-form-{{ sneaker.id }}" method="post"
+                      action="{% url 'store:adicionar_favoritos' sneaker.id %}">
+                    {% csrf_token %}
+                    <a href="#" class="favorite" onclick="submitFavoriteForm('{{ sneaker.id }}');">
+                        <i class="far fa-heart"></i>
+                        <i class="fas fa-heart hover-icon"></i>
+                    </a>
+                </form>
                 <form method="post" action="{% url 'store:adicionar_carrinho' sneaker.id %}">
                     {% csrf_token %}
                     <input type="hidden" id="quantidade-input-{{ sneaker.id }}" name="quantidade-{{ sneaker.id }}"

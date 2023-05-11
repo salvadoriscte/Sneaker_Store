@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='cliente',
             name='imagem',
-            field=models.ImageField(upload_to='store/images/clientes/'),
+            field=models.ImageField(upload_to='store/images/utilizadores/'),
         ),
         migrations.DeleteModel(
             name='PreferenciaMarca',

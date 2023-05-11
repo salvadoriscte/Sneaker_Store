@@ -19,6 +19,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='cliente',
             name='imagem',
-            field=models.ImageField(blank=True, default='store/images/default_profile_pic.png', null=True, upload_to='clientes/'),
+            field=models.ImageField(blank=True, default='store/images/default_profile_pic.png', null=True, upload_to='utilizadoresutilizadoresutilizadoresutilizadores/'),
         ),
     ]
