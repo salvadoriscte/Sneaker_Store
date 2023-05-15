@@ -157,7 +157,7 @@ footer {
 }
 
 
-/* popular sneakers*/
+/* Sneaker cards*/
 .sneakers-cont {
     display: flex;
     justify-content: flex-start;
@@ -715,16 +715,7 @@ footer {
   padding: 0 20px;
 }
 /*adicionar favorito*/
-.favorite-catalog{
-    position: relative;
-    font-size: 2.5em;
-    position: absolute;
-    outline: none;
-    background-color: transparent;
-    margin-left:28px;
-}
 .favorite {
-    position: relative;
     font-size: 2.5em;
     margin-left: 28px;
     position: absolute;
@@ -829,13 +820,16 @@ footer {
     background-color: #ddd;
 }
 
-
+/*About us*/
 .container_aboutus {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 20px;
     align-items: center;
     margin-bottom: 40px;
+    background-color: #F5F5F5;
+    padding: 20px;
+    border-radius: 10px;
 }
 
 .container_aboutus img {
@@ -845,6 +839,9 @@ footer {
 
 .team_section, .mission_section {
     margin-bottom: 40px;
+    background-color: #F5F5F5;
+    padding: 20px;
+    border-radius: 10px;
 }
 
 .team_section ul {
@@ -859,7 +856,6 @@ footer {
 .container_aboutus, .team_section, .mission_section {
     max-width: 800px;
     margin: 0 auto;
-    padding: 20px;
     line-height: 1.5;
     font-size: 18px;
 }
@@ -874,19 +870,48 @@ footer {
     border-radius: 8px;
 }
 
-h2 {
+.h2-aboutus {
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 20px;
     text-align: center;
+    color: #007BFF;
 }
 
-p {
-    text-align: justify;
-    margin-bottom: 20px;
+/*detalhes*/
+
+.card-actions-detail {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 100%;
 }
 
-/* Estilos para a página de detalhes */
+
+
+.favorite-detail {
+    color: black;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    left: 140px;
+    font-size: 2.5em;
+    outline: none;
+    background-color: transparent;
+    bottom:1px;
+    text-decoration: none;
+}
+
+.cart-detail-form {
+    display: flex;
+    align-items: center;
+    font-size: 1.2em;
+    outline: none;
+    background-color: transparent;
+    justify-content: center;
+}
+
 .detalhes-container {
     font-family: 'Roboto', sans-serif;
     line-height: 1.6;
@@ -968,23 +993,19 @@ p {
 button {
     margin-top: 20px;
 }
-    /*encomendas */
-/* Estilo para o título da página */
+
+/*Encomendas */
 .container h1 {
     font-size: 2.5rem;
     margin-bottom: 1rem;
 }
 
-/* Estilo para a linha horizontal */
 .container hr {
     margin-top: 1rem;
     margin-bottom: 1rem;
     border: 0;
     border-top: 2px solid #ccc;
 }
-
-/* Encomendas */
-/* Estilo para a linha horizontal */
 .enc-divider {
     margin-top: 1rem;
     margin-bottom: 1rem;
@@ -992,7 +1013,6 @@ button {
     border-top: 2px solid #ccc;
 }
 
-/* Encomendas */
 .enc-container {
     width: 80%;
     margin: 0 auto;

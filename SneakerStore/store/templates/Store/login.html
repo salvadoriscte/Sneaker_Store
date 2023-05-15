@@ -17,12 +17,7 @@
     </div>
     <button class="form-input" type="submit">Login</button>
   </form>
-  {% if messages %}
-  <ul class="messages">
-    {% for message in messages %}
-      <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }} </li>
-    {% endfor %}
-  </ul>
-  {% endif %}
+  <br>
+  <p>Ainda não tem conta? <a href="{% url 'store:registar' %}">Registe-se</a></p>
 </div>
 {% endblock %}

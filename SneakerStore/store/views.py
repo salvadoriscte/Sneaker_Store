@@ -1,23 +1,27 @@
-from django.http import HttpResponseForbidden
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .models import Sneaker, Carrinho, ItemCarrinho, ItemEncomenda, Encomenda, Marca, Cliente, Tamanho, Categoria, \
-    EmpregadoLoja, Favoritos
-from django.db.models import Count, Q, Sum, F
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login, logout
-from django.urls import reverse, reverse_lazy
-from datetime import timedelta
-from django.utils import timezone
-from django.views.decorators.csrf import csrf_protect
-from django.contrib.auth.decorators import user_passes_test
-import os
-from django.core.files.storage import FileSystemStorage
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User
+from django.core.files.storage import FileSystemStorage
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Count, Q, Sum, F
 from django.db.models.functions import Cast
 from django.db.models import CharField
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.http import HttpResponseForbidden
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse, reverse_lazy
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_protect
+
+from datetime import timedelta
+import os
+
+from .models import (
+    Sneaker, Carrinho, ItemCarrinho, ItemEncomenda,
+    Encomenda, Marca, Cliente, Tamanho, Categoria,
+    EmpregadoLoja, Favoritos
+)
 
 
 def check_empregado_loja(user):
@@ -29,13 +33,11 @@ def check_cliente(user):
 
 
 def index(request):
-    # Get popular sneakers
     popular_sneakers = (
         Sneaker.objects.annotate(num_sales=Count('itemencomenda'))
         .order_by('-num_sales')[:8]
     )
 
-    # Get more sneakers
     more_sneakers = Sneaker.objects.exclude(id__in=[s.id for s in popular_sneakers])[:4]
 
     context = {
@@ -49,7 +51,7 @@ def index(request):
 @csrf_protect
 def registar(request):
     if request.method == 'POST':
-        # get form data
+
         nome = request.POST['nome']
         email = request.POST['email']
         password = request.POST['password']
@@ -61,49 +63,41 @@ def registar(request):
         tamanho_preferido = request.POST['tamanho_preferido']
         marca_preferida = request.POST['marca_preferida']
 
-        # check if any required field is missing
         if not all([nome, email, password, morada, telemovel, nif, categoria_preferida, tamanho_preferido,
                     marca_preferida]):
             messages.error(request, 'Por favor, preencha todos os campos obrigatórios.')
             return redirect('store:registar')
 
-        # check if the user already exists
         if User.objects.filter(username=email).exists():
             messages.error(request, 'Este email já está em uso. Por favor, tente outro.')
             return redirect('store:registar')
 
-        # check if the NIF already exists
         if Cliente.objects.filter(nif=nif).exists():
             messages.error(request, 'Este NIF já está em uso. Por favor, tente outro.')
             return redirect('store:registar')
 
-        # create user
         user = User.objects.create_user(username=email, email=email, password=password)
         user.first_name = nome
         user.save()
 
-        # create client
-        cliente = Cliente.objects.create(user=user, morada=morada, telemovel=telemovel, nif=nif, imagem=imagem,
-                                         categoria_preferida_id=categoria_preferida,
-                                         tamanho_preferido_id=tamanho_preferido, marca_preferida_id=marca_preferida)
+        Cliente.objects.create(user=user, morada=morada, telemovel=telemovel, nif=nif, imagem=imagem,
+                               categoria_preferida_id=categoria_preferida,
+                               tamanho_preferido_id=tamanho_preferido, marca_preferida_id=marca_preferida)
 
-        # log in the user
         user = authenticate(username=email, password=password)
         login(request, user)
 
-        # redirect to the user's profile page
         messages.success(request, 'Registo concluído com sucesso! Bem-vindo(a) à Sneaker Store.')
         return redirect('store:index')
 
     else:
-        # get all brands from the database
+
         marcas = Marca.objects.all()
-        # get all sizes from the database
+
         tamanhos = Tamanho.objects.all()
-        # get all categories from the database
+
         categorias = Categoria.objects.all()
 
-        # pass the brands, sizes, and categories to the template context
         context = {
             'marcas': marcas,
             'tamanhos': tamanhos,
@@ -123,7 +117,6 @@ def login_view(request):
             login(request, user)
             messages.success(request, 'Login efetuado com sucesso!')
 
-            # Verifica se o utilizador é um empregado da loja
             if check_empregado_loja(user):
                 return redirect('store:catalogo')
             else:
@@ -201,24 +194,23 @@ def adicionar_carrinho(request, sneaker_id):
             item = ItemCarrinho.objects.create(carrinho=carrinho, sneaker=sneaker, quantidade=quantidade)
             messages.success(request, f'O Sneaker {sneaker.nome} foi adicionado ao carrinho!')
 
-        # Setar o carrinho na sessão
+        # Colocar o carrinho na sessão
         request.session['carrinho_id'] = carrinho.id
 
-        # Redirecionar para a página do carrinho
-        return redirect('store:carrinho')
+        # Redirecionar para a página de onde veio o request
+        return redirect(request.META.get('HTTP_REFERER', 'store:index'))
 
 
 @login_required(login_url='store:login_view')
 def favoritos(request):
     try:
-        # Get the favorite items for the logged in user
+
         favoritos = Favoritos.objects.get(cliente=request.user.cliente)
     except Favoritos.DoesNotExist:
-        # If the user has no favorite items, display an error message
+
         messages.error(request, 'Parece que ainda não adicionou nenhum sneaker aos favoritos...')
         return redirect('store:index')
 
-    # Otherwise, return the favorite items
     context = {'favoritos': favoritos}
     return render(request, 'store/favoritos.html', context)
 
@@ -229,24 +221,20 @@ def adicionar_favoritos(request, sneaker_id):
         sneaker = get_object_or_404(Sneaker, pk=sneaker_id)
         cliente = request.user.cliente
 
-        # Verificar se a lista de favoritos existe para o cliente logado
         try:
             favoritos = Favoritos.objects.get(cliente=cliente)
         except Favoritos.DoesNotExist:
-            # Se a lista de favoritos não existir, criar uma nova lista de favoritos
+
             favoritos = Favoritos.objects.create(cliente=cliente)
 
-        # Verificar se o item já está nos favoritos
         if favoritos.sneaker.filter(id=sneaker.id).exists():
             messages.info(request, f'O Sneaker {sneaker.nome} já está na sua lista de favoritos!')
         else:
-            # Se o item não estiver nos favoritos, adicionar o item
             favoritos.sneaker.add(sneaker)
             favoritos.save()
             messages.success(request, f'O Sneaker {sneaker.nome} foi adicionado aos seus favoritos!')
 
-        # Redirecionar para a página de favoritos
-        return redirect('store:favoritos')
+        return redirect(request.META.get('HTTP_REFERER', 'store:index'))
 
 
 @user_passes_test(check_cliente, login_url='store:login_view')
@@ -339,13 +327,11 @@ def finalizar_compra(request):
 
 
 def catalogo(request):
-    # Get filter parameters from the URL
     brand_filter = request.GET.get('brand')
     category_filter = request.GET.get('category')
     size_filter = request.GET.get('size')
     search_query = request.GET.get('search')
 
-    # Filter the sneakers based on the selected filters and search query
     sneakers = Sneaker.objects.all()
 
     if brand_filter:
@@ -360,22 +346,20 @@ def catalogo(request):
     if search_query:
         sneakers = sneakers.filter(nome__icontains=search_query)
 
-    # Get all brands, categories, and sizes for the filter dropdowns
     brands = Marca.objects.all()
     categories = Categoria.objects.all()
     sizes = Tamanho.objects.all()
 
-    # Pagination
-    paginator = Paginator(sneakers, 16)  # Show 16 sneakers per page
+    paginator = Paginator(sneakers, 16)
     page = request.GET.get('page')
 
     try:
         sneakers = paginator.page(page)
     except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
+
         sneakers = paginator.page(1)
     except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
+
         sneakers = paginator.page(paginator.num_pages)
 
     if not sneakers:
@@ -409,17 +393,14 @@ def editar_perfil(request):
     if request.method == 'POST':
         user = request.user
 
-        # Get form data
         nome = request.POST['nome']
         morada = request.POST['morada']
         telemovel = request.POST['telemovel']
         imagem = request.FILES['imagem'] if 'imagem' in request.FILES else None
 
-        # Update user data
         user.first_name = nome
         user.save()
 
-        # Check user type and update data accordingly
         if check_cliente(user):
             cliente = Cliente.objects.get(user=user)
             categoria_preferida = request.POST['categoria_preferida']
@@ -434,7 +415,7 @@ def editar_perfil(request):
 
         elif check_empregado_loja(user):
             empregadoloja = EmpregadoLoja.objects.get(user=user)
-
+cd
             empregadoloja.morada = morada
             empregadoloja.telemovel = telemovel
 
@@ -487,6 +468,9 @@ def encomendas(request):
         encomenda.total = 0
         for item in encomenda.itemencomenda_set.all():
             encomenda.total += item.sneaker.preco * item.quantidade
+
+    if search_query and not encomendas:
+        messages.info(request, 'Não foram encontrados resultados para a sua pesquisa.')
 
     context = {
         'encomendas': encomendas,
@@ -595,6 +579,7 @@ def update_encomenda_status(request, encomenda_id):
         if new_status in dict(Encomenda.STATUS_CHOICES):
             encomenda.status = new_status
             encomenda.save()
+            messages.success(request, f'Status da encomenda {encomenda.id} trocado com sucesso')
 
     return redirect(reverse('store:encomendas'))
 

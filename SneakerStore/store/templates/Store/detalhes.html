@@ -16,22 +16,36 @@
                 <p>Tamanho: {{ sneaker.tamanho.tamanho }}</p>
                 <p>Preço: {{ sneaker.preco }}€</p>
                 {% if request.user.cliente %}
-                <form method="post" action="{% url 'store:adicionar_carrinho' sneaker.id %}">
-                    {% csrf_token %}
-                    <div class="quantidade">
-                        <button class="quantity-button" type="button"
-                                onclick="diminuirQuantidade(event, '{{ sneaker.id }}')">-
-                        </button>
-                        <span class="qnt-nbr" id="quantidade-{{ sneaker.id }}">1</span>
-                        <button class="quantity-button" type="button"
-                                onclick="aumentarQuantidade(event, '{{ sneaker.id }}')">+
-                        </button>
-                        <input type="hidden" id="quantidade-input-{{ sneaker.id }}" name="quantidade-{{ sneaker.id }}"
-                               value="1">
+                <div class="card-actions-detail">
+                     <form id="add-favorite-form-{{ sneaker.id }}" method="post"
+                          action="{% url 'store:adicionar_favoritos' sneaker.id %}">
+                        {% csrf_token %}
+                        <a href="#" class="favorite-detail favorite" onclick="submitFavoriteForm('{{ sneaker.id }}');">
+                            <i class="far fa-heart"></i>
+                            <i class="fas fa-heart hover-icon"></i>
+                        </a>
+                    </form>
+                    <div class="cart-detail-form">
+                    <form method="post" action="{% url 'store:adicionar_carrinho' sneaker.id %}">
+                        {% csrf_token %}
+                        <div class="quantidade">
+                            <button class="quantity-button" type="button"
+                                    onclick="diminuirQuantidade(event, '{{ sneaker.id }}')">-
+                            </button>
+                            <span class="qnt-nbr" id="quantidade-{{ sneaker.id }}">1</span>
+                            <button class="quantity-button" type="button"
+                                    onclick="aumentarQuantidade(event, '{{ sneaker.id }}')">+
+                            </button>
+                            <input type="hidden" id="quantidade-input-{{ sneaker.id }}"
+                                   name="quantidade-{{ sneaker.id }}"
+                                   value="1">
+                        </div>
+                        <button type="submit">Adicionar ao carrinho</button>
+                    </form>
                     </div>
-                    <button type="submit">Adicionar ao carrinho</button>
-                </form>
+                </div>
                 {% else %}
+                <p>Quantidade em Stock: {{ sneaker.quantidade_stock }}</p>
                 <a href="{% url 'store:editar_sneaker' sneaker.id %}" class="btn-admin btn-edit">Editar</a>
                 <a href="{% url 'store:remover_sneaker' sneaker.id %}" class="btn-admin btn-remove">Remover</a>
                 {% endif %}

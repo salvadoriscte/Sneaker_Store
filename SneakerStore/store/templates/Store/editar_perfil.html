@@ -44,10 +44,10 @@
         <div class="custom-form-group">
             <label for="telemovel">Telemóvel:</label>
             {% if user.cliente %}
-            <input type="tel" name="telemovel" id="telemovel" required class="custom-input"
+            <input type="tel" name="telemovel" id="telemovel" required class="custom-input" pattern="^[0-9]{9}$"
                    value="{{ user.cliente.telemovel }}">
             {% elif user.empregadoloja %}
-            <input type="tel" name="telemovel" id="telemovel" required class="custom-input"
+            <input type="tel" name="telemovel" id="telemovel" required class="custom-input" pattern="^[0-9]{9}$"
                    value="{{ user.empregadoloja.telemovel }}">
             {% endif %}
         </div>

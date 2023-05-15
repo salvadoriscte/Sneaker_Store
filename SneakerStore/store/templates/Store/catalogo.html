@@ -32,7 +32,7 @@
             </select>
 
             <label for="search">Pesquisar:</label>
-            <input type="text" name="search" id="search" placeholder="Digite o nome do produto">
+            <input type="text" name="search" id="search" placeholder="Digite o nome do sneaker">
 
             <button type="submit">Filtrar</button>
         </form>
@@ -41,6 +41,7 @@
 {% if not request.user.empregadoloja %}
 <h1>Catálogo</h1>
 {% endif %}
+{% if sneakers %}
 <div class="sneakers-cont">
     {% for sneaker in sneakers %}
     <div class="sneaker-card">
@@ -51,6 +52,9 @@
             <p>Categoria: {{ sneaker.categoria.nome }}</p>
             <p>Tamanho: {{ sneaker.tamanho.tamanho }}</p>
             <p>Preço: {{ sneaker.preco }}€</p>
+             {% if request.user.empregadoloja %}
+            <p>Quantidade em Stock: {{ sneaker.quantidade_stock }}</p>
+            {% endif %}
         </a>
         <div class="card-actions">
             {% if user.is_authenticated and request.user.empregadoloja %}
@@ -97,4 +101,7 @@
         <a href="?page={{ sneakers.next_page_number }}">Próxima Página</a>
     {% endif %}
 </div>
+{% else %}
+<p class="enc-encomenda-none">Nenhum sneaker encontrado.</p>
+{% endif %}
 {% endblock %}
